@@ -1,0 +1,13 @@
+[versions]
+kotlin = "1.9.22"
+ksp = "1.9.22-1.0.17"
+kotlin-jupyter = "0.12.0-263"
+publishPlugin = "1.9.23-dev-45"
+ktlintGradle = "12.1.0"
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlin-jupyter-api = { id = "org.jetbrains.kotlin.jupyter.api", version.ref = "kotlin-jupyter" }
+publisher = { id = "org.jetbrains.kotlin.libs.publisher", version.ref = "publishPlugin" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
