@@ -16,9 +16,9 @@ group = "org.jetbrains.kotlinx"
 version = detectVersion()
 
 private fun detectVersion(): String {
-    val buildCounter = project.findProperty("build.counter")
-    if (buildCounter != null) {
-        return buildCounter.toString()
+    val buildNumber = project.findProperty("build.number")
+    if (buildNumber != null) {
+        return buildNumber.toString()
     } else {
         val baseVersion = project.property("baseVersion").toString()
         val devAddition = project.property("devAddition").toString()
