@@ -13,7 +13,14 @@ val spaceUsername: String by properties
 val spaceToken: String by properties
 
 group = "org.jetbrains.kotlinx"
-version = detectVersion()
+version =
+    detectVersion().also { version ->
+        Logging.getLogger(this::class.java).warn("Detected version: $version")
+    }
+
+allprojects {
+    version = rootProject.version
+}
 
 private fun detectVersion(): String {
     val buildNumber = project.findProperty("build.number")
@@ -36,6 +43,7 @@ repositories {
 }
 
 dependencies {
+    api(projects.util)
     testImplementation(kotlin("test"))
 }
 
@@ -58,6 +66,10 @@ kotlinPublications {
         developers {
             developer("ileasile", "Ilya Muradyan", "Ilya.Muradyan@jetbrains.com")
         }
+    }
+
+    localRepositories {
+        localMavenRepository(project.layout.buildDirectory.dir("maven"))
     }
 
     remoteRepositories {
