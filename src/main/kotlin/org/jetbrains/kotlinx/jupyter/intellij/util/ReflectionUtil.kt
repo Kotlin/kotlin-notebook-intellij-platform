@@ -15,6 +15,21 @@ fun <T> invokeMethod(
     return method.invoke(instance, *arguments.map { it.value }.toTypedArray()) as T
 }
 
+@Suppress("unused")
+fun <T> getField(
+    className: String,
+    fieldName: String,
+    instance: Any?,
+): T {
+    val clazz = Class.forName(className)
+    val field = clazz.getDeclaredField(fieldName)
+
+    field.isAccessible = true
+
+    @Suppress("UNCHECKED_CAST")
+    return field.get(instance) as T
+}
+
 fun argumentsOf(vararg args: Pair<Class<*>, Any?>): List<Argument> {
     return args.map { Argument(it.first, it.second) }
 }

@@ -48,7 +48,7 @@ fun findAllPaths(
             val parents: Array<ClassLoader> =
                 invokeMethod(
                     IntellijClasses.PluginClassLoader.name,
-                    "getAllParents",
+                    "getAllParentsClassLoaders",
                     classLoader,
                     argumentsOf(),
                 )
