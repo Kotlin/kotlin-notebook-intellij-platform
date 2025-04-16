@@ -18,7 +18,11 @@ fun findPackagesInJarOrDirectory(
     dontAddPackageIfItContainsClassifier: ClassifierNamePredicate = ClassifierNamePredicate { false },
 ) {
     val file = File(path)
-    val ignoredPackages = mutableSetOf<String>()
+    val ignoredPackages =
+        mutableSetOf(
+            // ignore root package
+            "",
+        )
 
     if (file.isDirectory) {
         // findPackagesInDirectory(file, file, packages, ignoredPackages, dontAddPackageIfItContainsClassifier)
@@ -98,7 +102,10 @@ private fun processPackageAndClassifier(
     packages.add(packageName)
 }
 
-private fun convertPathToPackage(relativePath: String) =
-    relativePath
-        .substring(0, relativePath.lastIndexOf('/'))
+private fun convertPathToPackage(relativePath: String): String {
+    val lastSlashIndex = relativePath.lastIndexOf('/')
+    if (lastSlashIndex == -1) return ""
+    return relativePath
+        .substring(0, lastSlashIndex)
         .replace('/', '.')
+}
