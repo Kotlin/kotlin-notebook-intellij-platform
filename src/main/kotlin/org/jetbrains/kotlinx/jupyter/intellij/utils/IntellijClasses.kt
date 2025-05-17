@@ -1,4 +1,4 @@
-package org.jetbrains.kotlinx.jupyter.intellij.util
+package org.jetbrains.kotlinx.jupyter.intellij.utils
 
 object IntellijClasses {
     val PluginClassLoader = getClassForName("com.intellij.ide.plugins.cl.PluginClassLoader")

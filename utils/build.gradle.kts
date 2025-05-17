@@ -21,7 +21,7 @@ dependencies {
 
 kotlinPublications {
     publication {
-        publicationName.set("kotlin-jupyter-intellij-util")
-        description.set("Utility methods for Kotlin Jupyter kernel integration for IntelliJ SDK")
+        publicationName.set("kotlin-jupyter-intellij-platform-utils")
+        description.set("Utility methods for Kotlin Jupyter kernel integration for the IntelliJ Platform")
     }
 }

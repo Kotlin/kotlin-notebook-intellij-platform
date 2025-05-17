@@ -1,4 +1,4 @@
-package org.jetbrains.kotlinx.jupyter.intellij.util
+package org.jetbrains.kotlinx.jupyter.intellij.utils
 
 fun <T> invokeMethod(
     className: String,

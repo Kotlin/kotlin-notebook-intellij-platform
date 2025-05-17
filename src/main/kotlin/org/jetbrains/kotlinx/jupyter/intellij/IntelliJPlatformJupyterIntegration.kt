@@ -7,11 +7,11 @@ import org.jetbrains.kotlinx.jupyter.api.libraries.JupyterIntegration
 import org.jetbrains.kotlinx.jupyter.api.libraries.createLibrary
 import org.jetbrains.kotlinx.jupyter.api.libraries.dependencies
 import org.jetbrains.kotlinx.jupyter.api.textResult
-import org.jetbrains.kotlinx.jupyter.intellij.util.collectSuitableStarImports
-import org.jetbrains.kotlinx.jupyter.intellij.util.getAllIntellijPaths
+import org.jetbrains.kotlinx.jupyter.intellij.utils.collectSuitableStarImports
+import org.jetbrains.kotlinx.jupyter.intellij.utils.getAllIntellijPaths
 
 @JupyterLibrary
-class IntellijJupyterIntegration : JupyterIntegration() {
+class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
     override fun Builder.onLoaded() {
         onLoaded {
             onIntegrationLoaded(notebook)
@@ -25,7 +25,7 @@ class IntellijJupyterIntegration : JupyterIntegration() {
         }
         addLibrary(
             createLibrary(notebook) {
-                importPackage<IntellijJupyterIntegration>()
+                importPackage<IntelliJPlatformJupyterIntegration>()
                 import("org.jetbrains.kotlinx.jupyter.intellij.api.*")
 
                 val pathsToAdd = getAllIntellijPaths()
@@ -34,7 +34,7 @@ class IntellijJupyterIntegration : JupyterIntegration() {
         )
     }
 
-    private fun incompatibleRunModeResult() = textResult("IntelliJ SDK integration should be loaded inside the IDE process only")
+    private fun incompatibleRunModeResult() = textResult("IntelliJ Platform integration should be loaded inside the IDE process only")
 
     private fun Builder.addDependenciesAndImports(pathsToAdd: Set<String>) {
         dependencies {

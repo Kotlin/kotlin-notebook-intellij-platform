@@ -1,4 +1,4 @@
-package org.jetbrains.kotlinx.jupyter.intellij.util
+package org.jetbrains.kotlinx.jupyter.intellij.utils
 
 interface SetBuilder<T> {
     fun add(element: T)

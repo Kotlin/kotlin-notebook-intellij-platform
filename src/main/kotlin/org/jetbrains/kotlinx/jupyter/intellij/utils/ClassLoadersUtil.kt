@@ -1,4 +1,4 @@
-package org.jetbrains.kotlinx.jupyter.intellij.util
+package org.jetbrains.kotlinx.jupyter.intellij.utils
 
 import org.jetbrains.kotlinx.jupyter.api.libraries.JupyterIntegration
 import java.net.URLClassLoader

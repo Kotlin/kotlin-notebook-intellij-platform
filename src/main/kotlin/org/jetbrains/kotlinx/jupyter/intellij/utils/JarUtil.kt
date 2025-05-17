@@ -1,4 +1,4 @@
-package org.jetbrains.kotlinx.jupyter.intellij.util
+package org.jetbrains.kotlinx.jupyter.intellij.utils
 
 import java.io.File
 import java.util.jar.JarFile

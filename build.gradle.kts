@@ -43,7 +43,7 @@ repositories {
 }
 
 dependencies {
-    api(projects.util)
+    api(projects.utils)
     testImplementation(kotlin("test"))
 }
 
@@ -84,7 +84,7 @@ kotlinPublications {
     }
 
     publication {
-        publicationName.set("kotlin-jupyter-intellij")
-        description.set("Kotlin Jupyter kernel integration for IntelliJ SDK")
+        publicationName.set("kotlin-jupyter-intellij-platform")
+        description.set("Kotlin Jupyter kernel integration for the IntelliJ Platform")
     }
 }

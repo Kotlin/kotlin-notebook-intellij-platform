@@ -1,4 +1,4 @@
-package org.jetbrains.kotlinx.jupyter.intellij.util
+package org.jetbrains.kotlinx.jupyter.intellij.utils
 
 fun collectSuitableStarImports(pathsToAdd: Set<String>): Set<String> {
     return FilteringSetBuilder(
