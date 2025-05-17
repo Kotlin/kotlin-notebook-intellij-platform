@@ -5,6 +5,10 @@ plugins {
     alias(libs.plugins.intellij.sdk.base)
 }
 
+kotlin {
+    jvmToolchain(17)
+}
+
 repositories {
     mavenCentral()
 
