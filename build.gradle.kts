@@ -44,6 +44,7 @@ repositories {
 
 dependencies {
     api(projects.utils)
+    implementation(libs.intellij.structure.ide)
     testImplementation(kotlin("test"))
 }
 
