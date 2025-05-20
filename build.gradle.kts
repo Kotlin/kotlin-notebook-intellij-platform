@@ -44,6 +44,7 @@ repositories {
 
 dependencies {
     api(projects.utils)
+    api(libs.kotlin.jupyter.lib)
     implementation(libs.intellij.structure.ide)
     testImplementation(kotlin("test"))
 }

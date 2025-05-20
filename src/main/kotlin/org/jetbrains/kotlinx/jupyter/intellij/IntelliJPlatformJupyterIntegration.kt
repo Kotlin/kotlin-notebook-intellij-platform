@@ -3,8 +3,9 @@ package org.jetbrains.kotlinx.jupyter.intellij
 import com.jetbrains.plugin.structure.ide.ProductInfoBasedIde
 import com.jetbrains.plugin.structure.ide.createIde
 import com.jetbrains.plugin.structure.ide.layout.MissingLayoutFileMode.SKIP_SILENTLY
-import com.jetbrains.plugin.structure.intellij.platform.ProductInfo
 import com.jetbrains.plugin.structure.intellij.platform.ProductInfoParser
+import jupyter.kotlin.ScriptTemplateWithDisplayHelpers
+import jupyter.kotlin.USE
 import org.jetbrains.kotlinx.jupyter.api.KotlinKernelHost
 import org.jetbrains.kotlinx.jupyter.api.Notebook
 import org.jetbrains.kotlinx.jupyter.api.annotations.JupyterLibrary
@@ -13,15 +14,46 @@ import org.jetbrains.kotlinx.jupyter.api.libraries.createLibrary
 import org.jetbrains.kotlinx.jupyter.api.libraries.dependencies
 import org.jetbrains.kotlinx.jupyter.api.textResult
 import org.jetbrains.kotlinx.jupyter.intellij.utils.getIntelliJPlatformPath
-import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
 
 private const val ERROR_INCOMPATIBLE_MODE = "IntelliJ Platform integration should be loaded inside the IDE process only"
-private const val ERROR_MISSING_PRODUCT_INFO = "Cannot find `product-info.json` file in the IntelliJ Platform installation."
+
+val idePath by lazy {
+    getIntelliJPlatformPath()
+}
+
+val productInfo by lazy {
+    val parser = ProductInfoParser()
+    val file = requireNotNull(idePath.resolve("Resources/product-info.json").takeIf { it.exists() })
+    requireNotNull(parser.parse(file))
+}
+
+val ide by lazy {
+    requireNotNull(createIde {
+        missingLayoutFileMode = SKIP_SILENTLY
+        path = idePath
+    } as? ProductInfoBasedIde)
+}
+
+fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String) = USE {
+    val jars = pluginIds.asSequence()
+        .mapNotNull { ide.findPluginById(it) ?: ide.findPluginByModule(it) }
+        .flatMap { it.classpath.paths }
+        .toSet()
+
+    USE {
+        dependencies {
+            jars.forEach {
+                implementation(it.pathString)
+            }
+        }
+    }
+}
 
 @JupyterLibrary
 class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
+
     override fun Builder.onLoaded() {
         onLoaded {
             onIntegrationLoaded(notebook)
@@ -30,13 +62,10 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
 
     private fun KotlinKernelHost.onIntegrationLoaded(notebook: Notebook) {
         if (!notebook.kernelRunMode.isRunInsideIntellijProcess) {
-            return error(ERROR_INCOMPATIBLE_MODE)
+            return displayError(ERROR_INCOMPATIBLE_MODE)
         }
 
-        val idePath = getIntelliJPlatformPath()
-        val productInfo = idePath.resolveProductInfo() ?: return error(ERROR_MISSING_PRODUCT_INFO)
-
-        val jars = productInfo.launch
+        val intelliJPlatformJars = productInfo.launch
             ?.firstOrNull()
             ?.bootClassPathJarNames
             .orEmpty()
@@ -48,36 +77,15 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
                 importPackage<IntelliJPlatformJupyterIntegration>()
                 import("org.jetbrains.kotlinx.jupyter.intellij.api.*")
 
-                addDependenciesAndImports(jars)
+                dependencies {
+                    intelliJPlatformJars.forEach {
+                        implementation(it.pathString)
+                    }
+                }
             },
         )
     }
 
-    private fun Builder.addDependenciesAndImports(pathsToAdd: Set<Path>) {
-        dependencies {
-            pathsToAdd.forEach {
-                implementation(it.pathString)
-            }
-        }
-    }
-
-    private fun Path.resolveProductInfo(): ProductInfo? {
-        val file = resolve("Resources/product-info.json").takeIf { it.exists() }
-        val parser = ProductInfoParser()
-
-        return file?.let { parser.parse(it )}
-    }
-
-    private fun Path.resolveIde(): ProductInfoBasedIde {
-        val ide = createIde {
-            missingLayoutFileMode = SKIP_SILENTLY
-            path = this@resolveIde
-        } as? ProductInfoBasedIde
-        requireNotNull(ide)
-
-        return ide
-    }
-
-    private fun KotlinKernelHost.error(message: String) =
+    private fun KotlinKernelHost.displayError(message: String) =
         display(textResult(message), null)
 }
