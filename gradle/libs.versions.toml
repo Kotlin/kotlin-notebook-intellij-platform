@@ -4,7 +4,7 @@ ksp = "1.9.22-1.0.17"
 kotlin-jupyter = "0.12.0-283"
 publishPlugin = "1.9.23-dev-45"
 ktlintGradle = "12.1.0"
-intellijSdkPlugin = "2.0.1"
+intellijPlatformGradlePlugin = "2.6.0"
 intellijPlatform = "2024.2"
 
 [plugins]
@@ -13,4 +13,4 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-jupyter-api = { id = "org.jetbrains.kotlin.jupyter.api", version.ref = "kotlin-jupyter" }
 publisher = { id = "org.jetbrains.kotlin.libs.publisher", version.ref = "publishPlugin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
-intellij-sdk-base = { id = "org.jetbrains.intellij.platform.base", version.ref = "intellijSdkPlugin" }
+intellij-platform-base = { id = "org.jetbrains.intellij.platform.base", version.ref = "intellijPlatformGradlePlugin" }

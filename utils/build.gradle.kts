@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.publisher)
     alias(libs.plugins.ktlint)
-    alias(libs.plugins.intellij.sdk.base)
+    alias(libs.plugins.intellij.platform.base)
 }
 
 kotlin {
@@ -19,7 +19,7 @@ repositories {
 
 dependencies {
     intellijPlatform {
-        intellijIdeaCommunity(libs.versions.intellijPlatform.get())
+        intellijIdeaCommunity(libs.versions.intellijPlatform)
     }
 }
 
