@@ -6,10 +6,12 @@ publishPlugin = "1.9.23-dev-45"
 ktlintGradle = "12.1.0"
 intellijPlatformGradlePlugin = "2.6.0"
 intellijPlatform = "2024.2"
+intellijPluginRepositoryRestClient = "2.0.46"
 intellijStructure = "3.305"
 
 [libraries]
 intellij-structure-ide = { group = "org.jetbrains.intellij.plugins", name = "structure-ide", version.ref = "intellijStructure" }
+intellij-pluginRepositoryRestClient = { group = "org.jetbrains.intellij", name = "plugin-repository-rest-client", version.ref = "intellijPluginRepositoryRestClient" }
 kotlin-jupyter-lib = { group = "org.jetbrains.kotlinx", name = "kotlin-jupyter-lib", version.ref = "kotlin-jupyter"}
 
 [plugins]

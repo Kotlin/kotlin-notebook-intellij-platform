@@ -6,6 +6,7 @@ import com.jetbrains.plugin.structure.ide.layout.MissingLayoutFileMode.SKIP_SILE
 import com.jetbrains.plugin.structure.intellij.platform.ProductInfoParser
 import jupyter.kotlin.ScriptTemplateWithDisplayHelpers
 import jupyter.kotlin.USE
+import org.jetbrains.intellij.pluginRepository.PluginRepositoryFactory
 import org.jetbrains.kotlinx.jupyter.api.KotlinKernelHost
 import org.jetbrains.kotlinx.jupyter.api.Notebook
 import org.jetbrains.kotlinx.jupyter.api.annotations.JupyterLibrary
@@ -13,7 +14,10 @@ import org.jetbrains.kotlinx.jupyter.api.libraries.JupyterIntegration
 import org.jetbrains.kotlinx.jupyter.api.libraries.createLibrary
 import org.jetbrains.kotlinx.jupyter.api.libraries.dependencies
 import org.jetbrains.kotlinx.jupyter.api.textResult
-import org.jetbrains.kotlinx.jupyter.intellij.utils.getIntelliJPlatformPath
+import org.jetbrains.kotlinx.jupyter.intellij.api.currentEditor
+import org.jetbrains.kotlinx.jupyter.intellij.utils.*
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createTempDirectory
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
 
@@ -23,17 +27,21 @@ val idePath by lazy {
     getIntelliJPlatformPath()
 }
 
-val productInfo by lazy {
-    val parser = ProductInfoParser()
-    val file = requireNotNull(idePath.resolve("Resources/product-info.json").takeIf { it.exists() })
-    requireNotNull(parser.parse(file))
-}
-
 val ide by lazy {
     requireNotNull(createIde {
         missingLayoutFileMode = SKIP_SILENTLY
         path = idePath
     } as? ProductInfoBasedIde)
+}
+
+val pluginRepository by lazy {
+    PluginRepositoryFactory.create("https://plugins.jetbrains.com")
+}
+
+val productInfo by lazy {
+    val parser = ProductInfoParser()
+    val file = requireNotNull(idePath.resolve("Resources/product-info.json").takeIf { it.exists() })
+    requireNotNull(parser.parse(file))
 }
 
 fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String) = USE {
@@ -47,6 +55,43 @@ fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String
             jars.forEach {
                 implementation(it.pathString)
             }
+        }
+    }
+}
+
+fun ScriptTemplateWithDisplayHelpers.loadPlugins(vararg pluginIds: String) = USE {
+    val storage = currentEditor()
+        ?.let { it.file.parent.toNioPath().resolve(".intellijPlatform/kotlinNotebook").createDirectories() }
+        ?: createTempDirectory()
+
+    val platformType = productInfo.productCode
+    val platformVersion = productInfo.buildNumber
+
+    val jars = pluginIds.flatMap { pluginId ->
+        val pluginRequest = PluginRequest.parse(pluginId)
+
+        val id = pluginRequest.id
+        val channel = pluginRequest.channel
+        val version = pluginRequest.version
+            ?: pluginRequest.resolveCompatibleVersion(platformType, platformVersion)
+            ?: error("Failed to resolve version for plugin '$id'")
+
+        val name = "$id-$version"
+        val pluginDirectory = storage.resolve(name)
+
+        if (!pluginDirectory.exists()) {
+            val pluginArchive = storage.resolve("$name.zip")
+            pluginRepository.downloader.download(id, version, pluginArchive.toFile(), channel)
+            requireNotNull(pluginArchive) { "Failed to download plugin '$id' version '$version' from '$channel'" }
+            pluginArchive.extract(pluginDirectory)
+        }
+
+        pluginDirectory.collectJars()
+    }
+
+    dependencies {
+        jars.forEach {
+            implementation(it.pathString)
         }
     }
 }

@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.jupyter.api)
     alias(libs.plugins.publisher)
     alias(libs.plugins.ktlint)
+    alias(libs.plugins.intellij.platform.base)
 }
 
 val spaceUsername: String by properties
@@ -40,13 +41,22 @@ kotlinJupyter {
 
 repositories {
     mavenCentral()
+
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
 dependencies {
     api(projects.utils)
     api(libs.kotlin.jupyter.lib)
     implementation(libs.intellij.structure.ide)
+    implementation(libs.intellij.pluginRepositoryRestClient)
     testImplementation(kotlin("test"))
+
+    intellijPlatform {
+        intellijIdeaCommunity(libs.versions.intellijPlatform)
+    }
 }
 
 tasks.test {
