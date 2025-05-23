@@ -15,7 +15,11 @@ import org.jetbrains.kotlinx.jupyter.api.libraries.createLibrary
 import org.jetbrains.kotlinx.jupyter.api.libraries.dependencies
 import org.jetbrains.kotlinx.jupyter.api.textResult
 import org.jetbrains.kotlinx.jupyter.intellij.api.currentEditor
-import org.jetbrains.kotlinx.jupyter.intellij.utils.*
+import org.jetbrains.kotlinx.jupyter.intellij.utils.PluginRequest
+import org.jetbrains.kotlinx.jupyter.intellij.utils.extract
+import org.jetbrains.kotlinx.jupyter.intellij.utils.getIntelliJPlatformPath
+import org.jetbrains.kotlinx.jupyter.intellij.utils.resolveCompatibleVersion
+import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.exists
@@ -59,41 +63,34 @@ fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String
     }
 }
 
-fun ScriptTemplateWithDisplayHelpers.loadPlugins(vararg pluginIds: String) = USE {
-    val storage = currentEditor()
-        ?.let { it.file.parent.toNioPath().resolve(".intellijPlatform/kotlinNotebook").createDirectories() }
+fun ScriptTemplateWithDisplayHelpers.downloadPlugin(pluginId: String): Path? {
+    // TODO: do not resolve KN file's parent directory that way, but KTNB-1035
+    val storage = currentEditor()?.file?.parent?.toNioPath()?.resolve(".intellijPlatform/kotlinNotebook")
+        ?.createDirectories()
         ?: createTempDirectory()
 
     val platformType = productInfo.productCode
     val platformVersion = productInfo.buildNumber
 
-    val jars = pluginIds.flatMap { pluginId ->
-        val pluginRequest = PluginRequest.parse(pluginId)
+    val pluginRequest = PluginRequest.parse(pluginId)
 
-        val id = pluginRequest.id
-        val channel = pluginRequest.channel
-        val version = pluginRequest.version
-            ?: pluginRequest.resolveCompatibleVersion(platformType, platformVersion)
-            ?: error("Failed to resolve version for plugin '$id'")
+    val id = pluginRequest.id
+    val channel = pluginRequest.channel
+    val version = pluginRequest.version
+        ?: pluginRequest.resolveCompatibleVersion(platformType, platformVersion)
+        ?: error("Failed to resolve version for plugin '$id'")
 
-        val name = "$id-$version"
-        val pluginDirectory = storage.resolve(name)
+    val name = "$id-$version"
+    val pluginDirectory = storage.resolve(name)
 
-        if (!pluginDirectory.exists()) {
-            val pluginArchive = storage.resolve("$name.zip")
-            pluginRepository.downloader.download(id, version, pluginArchive.toFile(), channel)
-            requireNotNull(pluginArchive) { "Failed to download plugin '$id' version '$version' from '$channel'" }
-            pluginArchive.extract(pluginDirectory)
-        }
-
-        pluginDirectory.collectJars()
+    if (!pluginDirectory.exists()) {
+        val pluginArchive = storage.resolve("$name.zip")
+        pluginRepository.downloader.download(id, version, pluginArchive.toFile(), channel)
+        requireNotNull(pluginArchive) { "Failed to download plugin '$id' version '$version' from '$channel'" }
+        pluginArchive.extract(pluginDirectory)
     }
 
-    dependencies {
-        jars.forEach {
-            implementation(it.pathString)
-        }
-    }
+    return pluginDirectory
 }
 
 @JupyterLibrary
