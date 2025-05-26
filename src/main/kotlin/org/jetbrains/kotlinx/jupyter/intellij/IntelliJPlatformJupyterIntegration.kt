@@ -1,5 +1,7 @@
 package org.jetbrains.kotlinx.jupyter.intellij
 
+import com.intellij.ide.plugins.PluginManager
+import com.intellij.openapi.extensions.PluginId
 import com.jetbrains.plugin.structure.ide.ProductInfoBasedIde
 import com.jetbrains.plugin.structure.ide.createIde
 import com.jetbrains.plugin.structure.ide.layout.MissingLayoutFileMode.SKIP_SILENTLY
@@ -15,10 +17,7 @@ import org.jetbrains.kotlinx.jupyter.api.libraries.createLibrary
 import org.jetbrains.kotlinx.jupyter.api.libraries.dependencies
 import org.jetbrains.kotlinx.jupyter.api.textResult
 import org.jetbrains.kotlinx.jupyter.intellij.api.currentEditor
-import org.jetbrains.kotlinx.jupyter.intellij.utils.PluginRequest
-import org.jetbrains.kotlinx.jupyter.intellij.utils.extract
-import org.jetbrains.kotlinx.jupyter.intellij.utils.getIntelliJPlatformPath
-import org.jetbrains.kotlinx.jupyter.intellij.utils.resolveCompatibleVersion
+import org.jetbrains.kotlinx.jupyter.intellij.utils.*
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createTempDirectory
@@ -59,6 +58,23 @@ fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String
             jars.forEach {
                 implementation(it.pathString)
             }
+        }
+    }
+}
+
+fun ScriptTemplateWithDisplayHelpers.loadPlugins(vararg pluginIds: String) = USE {
+    val pluginManager = PluginManager.getInstance()
+
+    val jars = pluginIds.flatMap { pluginId ->
+        val plugin = pluginManager.findEnabledPlugin(PluginId.getId(pluginId))
+        requireNotNull(plugin)
+
+        plugin.pluginPath.collectJars()
+    }
+
+    dependencies {
+        jars.forEach {
+            implementation(it.pathString)
         }
     }
 }
