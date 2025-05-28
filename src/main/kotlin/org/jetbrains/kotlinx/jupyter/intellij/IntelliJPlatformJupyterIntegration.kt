@@ -18,11 +18,9 @@ import org.jetbrains.kotlinx.jupyter.api.libraries.JupyterIntegration
 import org.jetbrains.kotlinx.jupyter.api.libraries.createLibrary
 import org.jetbrains.kotlinx.jupyter.api.libraries.dependencies
 import org.jetbrains.kotlinx.jupyter.api.textResult
-import org.jetbrains.kotlinx.jupyter.intellij.api.currentEditor
 import org.jetbrains.kotlinx.jupyter.intellij.utils.*
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
-import kotlin.io.path.createTempDirectory
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
 
@@ -82,10 +80,9 @@ fun ScriptTemplateWithDisplayHelpers.loadPlugins(vararg pluginIds: String): Unit
 }
 
 fun ScriptTemplateWithDisplayHelpers.downloadPlugin(pluginId: String): Path? {
-    // TODO: do not resolve KN file's parent directory that way, but KTNB-1035
-    val storage = currentEditor()?.file?.parent?.toNioPath()?.resolve(".intellijPlatform/kotlinNotebook")
-        ?.createDirectories()
-        ?: createTempDirectory()
+    val storage = userHandlesProvider.notebook.workingDir
+        .resolve(".intellijPlatform/kotlinNotebook")
+        .createDirectories()
 
     val platformType = productInfo.productCode
     val platformVersion = productInfo.buildNumber
