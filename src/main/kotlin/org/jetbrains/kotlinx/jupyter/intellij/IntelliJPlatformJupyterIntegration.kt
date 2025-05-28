@@ -5,9 +5,11 @@ import com.intellij.openapi.extensions.PluginId
 import com.jetbrains.plugin.structure.ide.ProductInfoBasedIde
 import com.jetbrains.plugin.structure.ide.createIde
 import com.jetbrains.plugin.structure.ide.layout.MissingLayoutFileMode.SKIP_SILENTLY
+import com.jetbrains.plugin.structure.intellij.platform.ProductInfo
 import com.jetbrains.plugin.structure.intellij.platform.ProductInfoParser
 import jupyter.kotlin.ScriptTemplateWithDisplayHelpers
 import jupyter.kotlin.USE
+import org.jetbrains.intellij.pluginRepository.PluginRepository
 import org.jetbrains.intellij.pluginRepository.PluginRepositoryFactory
 import org.jetbrains.kotlinx.jupyter.api.KotlinKernelHost
 import org.jetbrains.kotlinx.jupyter.api.Notebook
@@ -26,28 +28,28 @@ import kotlin.io.path.pathString
 
 private const val ERROR_INCOMPATIBLE_MODE = "IntelliJ Platform integration should be loaded inside the IDE process only"
 
-val idePath by lazy {
+val idePath: Path by lazy {
     getIntelliJPlatformPath()
 }
 
-val ide by lazy {
+val ide: ProductInfoBasedIde by lazy {
     requireNotNull(createIde {
         missingLayoutFileMode = SKIP_SILENTLY
         path = idePath
     } as? ProductInfoBasedIde)
 }
 
-val pluginRepository by lazy {
+val pluginRepository: PluginRepository by lazy {
     PluginRepositoryFactory.create("https://plugins.jetbrains.com")
 }
 
-val productInfo by lazy {
+val productInfo: ProductInfo by lazy {
     val parser = ProductInfoParser()
     val file = requireNotNull(idePath.resolve("Resources/product-info.json").takeIf { it.exists() })
     requireNotNull(parser.parse(file))
 }
 
-fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String) = USE {
+fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String): Unit = USE {
     val jars = pluginIds.asSequence()
         .mapNotNull { ide.findPluginById(it) ?: ide.findPluginByModule(it) }
         .flatMap { it.classpath.paths }
@@ -62,7 +64,7 @@ fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String
     }
 }
 
-fun ScriptTemplateWithDisplayHelpers.loadPlugins(vararg pluginIds: String) = USE {
+fun ScriptTemplateWithDisplayHelpers.loadPlugins(vararg pluginIds: String): Unit = USE {
     val pluginManager = PluginManager.getInstance()
 
     val jars = pluginIds.flatMap { pluginId ->
