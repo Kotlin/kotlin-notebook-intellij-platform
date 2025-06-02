@@ -14,12 +14,13 @@ repositories {
 
     intellijPlatform {
         defaultRepositories()
+        nightly()
     }
 }
 
 dependencies {
     intellijPlatform {
-        intellijIdeaCommunity(libs.versions.intellijPlatform)
+        intellijIdeaCommunity(libs.versions.intellijPlatform, useInstaller = false)
     }
 }
 

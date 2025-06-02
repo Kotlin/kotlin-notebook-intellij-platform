@@ -35,8 +35,11 @@ private fun detectVersion(): String {
 }
 
 kotlinJupyter {
-    addScannerDependency()
     addApiDependency()
+}
+
+tasks.processJupyterApiResources {
+    libraryProducers = listOf("org.jetbrains.kotlinx.jupyter.intellij.IntelliJPlatformJupyterIntegration")
 }
 
 repositories {
@@ -44,6 +47,7 @@ repositories {
 
     intellijPlatform {
         defaultRepositories()
+        nightly()
     }
 }
 
@@ -55,7 +59,7 @@ dependencies {
     testImplementation(kotlin("test"))
 
     intellijPlatform {
-        intellijIdeaCommunity(libs.versions.intellijPlatform)
+        intellijIdeaCommunity(libs.versions.intellijPlatform, useInstaller = false)
     }
 }
 
