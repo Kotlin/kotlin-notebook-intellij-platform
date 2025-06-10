@@ -60,6 +60,7 @@ dependencies {
 
     intellijPlatform {
         intellijIdeaCommunity(libs.versions.intellijPlatform, useInstaller = false)
+        bundledPlugin("intellij.jupyter")
     }
 }
 

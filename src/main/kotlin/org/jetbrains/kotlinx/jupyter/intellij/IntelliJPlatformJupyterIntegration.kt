@@ -2,7 +2,10 @@ package org.jetbrains.kotlinx.jupyter.intellij
 
 import com.intellij.ide.plugins.PluginMainDescriptor
 import com.intellij.ide.plugins.PluginManager
+import com.intellij.jupyter.core.jupyter.connections.action.JupyterRestartKernelListener
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.util.Disposer
 import com.jetbrains.plugin.structure.ide.ProductInfoBasedIde
 import com.jetbrains.plugin.structure.ide.createIde
 import com.jetbrains.plugin.structure.ide.layout.MissingLayoutFileMode.SKIP_SILENTLY
@@ -18,14 +21,13 @@ import org.jetbrains.kotlinx.jupyter.api.libraries.JupyterIntegration
 import org.jetbrains.kotlinx.jupyter.api.libraries.createLibrary
 import org.jetbrains.kotlinx.jupyter.api.libraries.dependencies
 import org.jetbrains.kotlinx.jupyter.api.textResult
+import org.jetbrains.kotlinx.jupyter.intellij.api.currentProject
 import org.jetbrains.kotlinx.jupyter.intellij.utils.*
 import org.jetbrains.kotlinx.jupyter.util.ModifiableParentsClassLoader
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
-
-private const val ERROR_INCOMPATIBLE_MODE = "IntelliJ Platform integration should be loaded inside the IDE process only"
 
 /**
  * Represents the resolved file system path to the IntelliJ Platform installation directory.
@@ -203,6 +205,11 @@ fun ScriptTemplateWithDisplayHelpers.downloadPlugin(pluginId: String): Path? {
 }
 
 /**
+ * Represents a disposable used for managing the IntelliJ Platform lifetime of the current notebook.
+ */
+val notebookDisposable: Disposable = Disposer.newCheckedDisposable("Kotlin Notebook")
+
+/**
  * Represents a Jupyter integration for the IntelliJ Platform.
  */
 class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
@@ -210,12 +217,13 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
     override fun Builder.onLoaded() {
         onLoaded {
             onIntegrationLoaded(notebook)
+            initializeDisposable()
         }
     }
 
     private fun KotlinKernelHost.onIntegrationLoaded(notebook: Notebook) {
         if (!notebook.kernelRunMode.isRunInsideIntellijProcess) {
-            return displayText(ERROR_INCOMPATIBLE_MODE)
+            return displayText("IntelliJ Platform integration should be loaded inside the IDE process only")
         }
 
         val intelliJPlatformJars = productInfo.launch
@@ -239,6 +247,16 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
         )
 
         displayText("IntelliJ Platform integration is loaded")
+    }
+
+    private fun KotlinKernelHost.initializeDisposable() {
+        requireNotNull(currentProject())
+            .messageBus
+            .connect(notebookDisposable)
+            .subscribe(JupyterRestartKernelListener.TOPIC, JupyterRestartKernelListener {
+                Disposer.dispose(notebookDisposable)
+                displayText("IntelliJ Platform integration is disposed")
+            })
     }
 
     private fun KotlinKernelHost.displayText(message: String) =
