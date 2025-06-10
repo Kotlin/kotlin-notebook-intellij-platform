@@ -215,7 +215,7 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
 
     private fun KotlinKernelHost.onIntegrationLoaded(notebook: Notebook) {
         if (!notebook.kernelRunMode.isRunInsideIntellijProcess) {
-            return displayError(ERROR_INCOMPATIBLE_MODE)
+            return displayText(ERROR_INCOMPATIBLE_MODE)
         }
 
         val intelliJPlatformJars = productInfo.launch
@@ -235,10 +235,12 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
                         implementation(it.pathString)
                     }
                 }
-            },
+            }
         )
+
+        displayText("IntelliJ Platform integration is loaded")
     }
 
-    private fun KotlinKernelHost.displayError(message: String) =
+    private fun KotlinKernelHost.displayText(message: String) =
         display(textResult(message), null)
 }
