@@ -206,8 +206,19 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
             }
 
             loadIntelliJPlatform(notebook)
-            initializeDisposable()
-            initializeIntelliJPlatformClassloader(notebook)
+
+            if (productInfo.version.toVersion() >= Version(2025, 1, 3)) {
+                initializeDisposable()
+                initializeIntelliJPlatformClassloader(notebook)
+            } else {
+                displayText(
+                    """
+                        You are running ${productInfo.name} ${productInfo.version}.
+                        The `notebookDisposable` and `loadPlugins()` are not fully supported in this version of the IDE.
+                        Please upgrade to 2025.1.3 or higher for the full IntelliJ Platform integration experience.
+                    """.trimIndent()
+                )
+            }
         }
     }
 
