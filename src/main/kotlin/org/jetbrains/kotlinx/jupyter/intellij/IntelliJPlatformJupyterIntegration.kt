@@ -94,27 +94,6 @@ fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String
 }
 
 /**
- * Loads the plugin installed in the current IDE into the script context based on its plugin ID.
- * This method also supports optionally loading plugin classes and class loaders.
- *
- * @param pluginId A plugin ID to load.
- * @param loadClasses If true, the method loads the plugin classes into the current context. Defaults to true.
- * @param loadClassLoader If true, the method loads the plugin class loaders into the current context. Defaults to true.
- * @return A list of [PluginMainDescriptor] objects representing the requested plugins.
- * @throws IllegalArgumentException If any specified plugin ID does not match an enabled plugin in the current IDE.
- */
-@Suppress("UnstableApiUsage")
-fun ScriptTemplateWithDisplayHelpers.loadPlugin(
-    pluginId: String,
-    loadClasses: Boolean = true,
-    loadClassLoader: Boolean = true,
-): PluginMainDescriptor = loadPlugins(
-    pluginId,
-    loadClasses = loadClasses,
-    loadClassLoader = loadClassLoader,
-).first()
-
-/**
  * Loads plugins installed in the current IDE into the script context based on their plugin IDs.
  * This method also supports optionally loading plugin classes and class loaders.
  *
@@ -161,6 +140,8 @@ fun ScriptTemplateWithDisplayHelpers.loadPlugins(
     .toList()
 
 /**
+ * TODO: Hidden from public as there's no real use-case for it yet.
+ *
  * Downloads a plugin based on the specified plugin identifier, resolves its version, and extracts it, if necessary.
  * The plugin is stored in a dedicated directory under the working directory of the notebook.
  *
@@ -175,7 +156,7 @@ fun ScriptTemplateWithDisplayHelpers.loadPlugins(
  * @param pluginId A plugin ID to be downloaded.
  * @return The path to the directory where the downloaded plugin was extracted, or null if any issue occurs during the process.
  */
-fun ScriptTemplateWithDisplayHelpers.downloadPlugin(pluginId: String): Path? {
+private fun ScriptTemplateWithDisplayHelpers.downloadPlugin(pluginId: String): Path? {
     val storage = userHandlesProvider.notebook.workingDir
         .resolve(".intellijPlatform/kotlinNotebook")
         .createDirectories()
