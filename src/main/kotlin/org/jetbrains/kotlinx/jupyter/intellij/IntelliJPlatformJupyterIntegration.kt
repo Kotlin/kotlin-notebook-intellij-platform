@@ -30,6 +30,11 @@ import kotlin.io.path.exists
 import kotlin.io.path.pathString
 
 /**
+ * Represents a disposable used for managing the IntelliJ Platform lifetime of the current notebook.
+ */
+val notebookDisposable: Disposable = Disposer.newCheckedDisposable("Kotlin Notebook")
+
+/**
  * Represents the resolved file system path to the IntelliJ Platform installation directory.
  */
 val idePath: Path by lazy {
@@ -78,6 +83,7 @@ val productInfo: ProductInfo by lazy {
  * @param pluginIds A list of plugin IDs to be loaded. Each identifier can represent either the plugin ID or the module ID.
  * @return Unit
  */
+@Suppress("unused")
 fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String): Unit = USE {
     val jars = pluginIds.asSequence()
         .mapNotNull { ide.findPluginById(it) ?: ide.findPluginByModule(it) }
@@ -103,7 +109,7 @@ fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String
  * @return A list of [PluginMainDescriptor] objects representing the requested plugins.
  * @throws IllegalArgumentException If any specified plugin ID does not match an enabled plugin in the current IDE.
  */
-@Suppress("UnstableApiUsage")
+@Suppress("UnstableApiUsage", "unused")
 fun ScriptTemplateWithDisplayHelpers.loadPlugins(
     vararg pluginIds: String,
     loadClasses: Boolean = true,
@@ -156,6 +162,7 @@ fun ScriptTemplateWithDisplayHelpers.loadPlugins(
  * @param pluginId A plugin ID to be downloaded.
  * @return The path to the directory where the downloaded plugin was extracted, or null if any issue occurs during the process.
  */
+@Suppress("unused")
 private fun ScriptTemplateWithDisplayHelpers.downloadPlugin(pluginId: String): Path? {
     val storage = userHandlesProvider.notebook.workingDir
         .resolve(".intellijPlatform/kotlinNotebook")
@@ -184,11 +191,6 @@ private fun ScriptTemplateWithDisplayHelpers.downloadPlugin(pluginId: String): P
 
     return pluginDirectory
 }
-
-/**
- * Represents a disposable used for managing the IntelliJ Platform lifetime of the current notebook.
- */
-val notebookDisposable: Disposable = Disposer.newCheckedDisposable("Kotlin Notebook")
 
 /**
  * Represents a Jupyter integration for the IntelliJ Platform.
