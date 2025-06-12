@@ -134,13 +134,10 @@ fun ScriptTemplateWithDisplayHelpers.loadPlugins(
     }
     .onEach { plugin ->
         if (loadClassLoader) {
-            // TODO: We should add only CLs of "leaf" modules - those not serving as a parent for other modules
-            val base = userHandlesProvider.notebook.intermediateClassLoader as ModifiableParentsClassLoader
+            val pluginClassloaders = plugin.content.modules
+                .map { it.descriptor.classLoader } + listOf(plugin.classLoader)
 
-            plugin.content.modules
-                .asSequence()
-                .map { it.descriptor.classLoader }
-                .onEach { base.addParent(it) }
+            intelliJPlatformClassLoader.addParents(pluginClassloaders)
         }
     }
     .toList()
@@ -193,22 +190,28 @@ private fun ScriptTemplateWithDisplayHelpers.downloadPlugin(pluginId: String): P
 }
 
 /**
+ * Represents a class loader that loads classes from the IntelliJ Platform.
+ */
+private val intelliJPlatformClassLoader: IntelliJPlatformClassloader by lazy { IntelliJPlatformClassloader() }
+
+/**
  * Represents a Jupyter integration for the IntelliJ Platform.
  */
 class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
 
     override fun Builder.onLoaded() {
         onLoaded {
-            onIntegrationLoaded(notebook)
+            if (!notebook.kernelRunMode.isRunInsideIntellijProcess) {
+                error("IntelliJ Platform integration can be run in the IDE process only")
+            }
+
+            loadIntelliJPlatform(notebook)
             initializeDisposable()
+            initializeIntelliJPlatformClassloader(notebook)
         }
     }
 
-    private fun KotlinKernelHost.onIntegrationLoaded(notebook: Notebook) {
-        if (!notebook.kernelRunMode.isRunInsideIntellijProcess) {
-            return displayText("IntelliJ Platform integration should be loaded inside the IDE process only")
-        }
-
+    private fun KotlinKernelHost.loadIntelliJPlatform(notebook: Notebook) {
         val intelliJPlatformJars = productInfo.launch
             ?.firstOrNull()
             ?.bootClassPathJarNames
@@ -240,6 +243,11 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
                 Disposer.dispose(notebookDisposable)
                 displayText("IntelliJ Platform integration is disposed")
             })
+    }
+
+    private fun initializeIntelliJPlatformClassloader(notebook: Notebook) {
+        val base = notebook.intermediateClassLoader as ModifiableParentsClassLoader
+        base.addParent(intelliJPlatformClassLoader)
     }
 
     private fun KotlinKernelHost.displayText(message: String) =
