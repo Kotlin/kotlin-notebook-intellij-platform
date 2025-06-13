@@ -47,13 +47,12 @@ repositories {
 
     intellijPlatform {
         defaultRepositories()
-        nightly()
     }
 }
 
 dependencies {
-    api(projects.utils)
     api(libs.kotlin.jupyter.lib)
+    api(libs.dataframe.core)
     implementation(libs.intellij.structure.ide)
     implementation(libs.intellij.pluginRepositoryRestClient)
     testImplementation(kotlin("test"))
@@ -82,6 +81,7 @@ kotlinPublications {
         }
         developers {
             developer("ileasile", "Ilya Muradyan", "Ilya.Muradyan@jetbrains.com")
+            developer("hsz", "Jakub Chrzanowski", "Jakub.Chrzanowski@jetbrains.com")
         }
     }
 
