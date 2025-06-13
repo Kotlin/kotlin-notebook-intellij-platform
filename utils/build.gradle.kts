@@ -19,6 +19,10 @@ repositories {
 }
 
 dependencies {
+    api(libs.kotlin.jupyter.api)
+    api(libs.kotlin.jupyter.lib)
+    api(libs.dataframe.core)
+
     intellijPlatform {
         intellijIdeaCommunity(libs.versions.intellijPlatform, useInstaller = false)
     }

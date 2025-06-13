@@ -2,6 +2,7 @@
 kotlin = "2.1.21"
 ksp = "2.1.21-2.0.1"
 kotlin-jupyter = "0.12.0-452"
+dataframe-core = "1.0.0-dev-7390"
 publishPlugin = "1.9.23-dev-45"
 ktlintGradle = "12.1.0"
 intellijPlatformGradlePlugin = "2.6.0"
@@ -12,7 +13,9 @@ intellijStructure = "3.305"
 [libraries]
 intellij-structure-ide = { group = "org.jetbrains.intellij.plugins", name = "structure-ide", version.ref = "intellijStructure" }
 intellij-pluginRepositoryRestClient = { group = "org.jetbrains.intellij", name = "plugin-repository-rest-client", version.ref = "intellijPluginRepositoryRestClient" }
+kotlin-jupyter-api = { group = "org.jetbrains.kotlinx", name = "kotlin-jupyter-api", version.ref = "kotlin-jupyter"}
 kotlin-jupyter-lib = { group = "org.jetbrains.kotlinx", name = "kotlin-jupyter-lib", version.ref = "kotlin-jupyter"}
+dataframe-core = { group = "org.jetbrains.kotlinx", name = "dataframe-core", version.ref = "dataframe-core"}
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
