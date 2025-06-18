@@ -2,7 +2,6 @@ package org.jetbrains.kotlinx.jupyter.intellij.utils
 
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.ide.plugins.cl.ResolveScopeManager
-import org.jetbrains.kotlinx.jupyter.util.ModifiableParentsClassLoader
 import java.io.IOException
 import java.net.URL
 import java.util.Collections
@@ -10,13 +9,9 @@ import java.util.Enumeration
 import kotlin.collections.ArrayDeque
 
 @Suppress("UnstableApiUsage")
-class IntelliJPlatformClassloader :  ModifiableParentsClassLoader() {
+class IntelliJPlatformClassloader : ClassLoader() {
 
     val allParents = mutableListOf<ClassLoader>()
-
-    override fun addParent(parent: ClassLoader) {
-        addParents(listOf(parent))
-    }
 
     private fun getParents(classLoader: ClassLoader): List<ClassLoader> {
         return when {
@@ -42,9 +37,10 @@ class IntelliJPlatformClassloader :  ModifiableParentsClassLoader() {
             return loaded
         }
 
-        // Attempt to load a class from each parent in order
         for (parent in allParents) {
             try {
+                // Simplification of logic from PluginClassLoader#tryLoadingClass: further generations will be grateful
+                // Ideally, we also need to take UrlClassLoaders into consideration: these guys load plugin libraries
                 val clazz = if (parent is PluginClassLoader) {
                     if (parent.calculateConsistency(name) != null) {
                         continue
@@ -89,6 +85,9 @@ class IntelliJPlatformClassloader :  ModifiableParentsClassLoader() {
         isAccessible = true
     }
 
+    /**
+     * See [ResolveScopeManager.isDefinitelyAlienClass].
+     */
     private fun PluginClassLoader.calculateConsistency(name: String, force: Boolean = false): String? {
         return this.packagePrefix?.let {
             (resolveScopeField.get(this) as ResolveScopeManager)
@@ -96,6 +95,10 @@ class IntelliJPlatformClassloader :  ModifiableParentsClassLoader() {
         }
     }
 
+    /**
+     * ClassLoader A is before classloader B in the resulting list => classloader B doesn't have classloader A
+     * as a direct or transitive parent.
+     */
     private fun <T> topologicalMergeSortedAndNew(
         sorted: List<T>,
         new: List<T>,

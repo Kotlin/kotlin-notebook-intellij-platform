@@ -6,8 +6,18 @@ private const val DEFAULT_CHANNEL = "default"
 
 internal data class PluginRequest(val id: String, var version: String? = null, val channel: String = DEFAULT_CHANNEL) {
     companion object {
-        fun parse(request: String): PluginRequest {
-            val (idWithVersion, channel) = request.split("@", limit = 2).let {
+        /**
+         * The [notation] can be specified in one of the following formats:
+         * - `pluginId`
+         * - `pluginId@channel`
+         * - `pluginId:version`
+         * - `pluginId:version@channel`
+         *
+         * @param notation The plugin notation to parse.
+         * @return The [PluginRequest] object with the parsed information.
+         */
+        fun parse(notation: String): PluginRequest {
+            val (idWithVersion, channel) = notation.split("@", limit = 2).let {
                 it.first() to (it.getOrNull(1) ?: DEFAULT_CHANNEL)
             }
 

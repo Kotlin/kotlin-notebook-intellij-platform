@@ -9,7 +9,6 @@ import org.jetbrains.kotlinx.jupyter.api.libraries.createLibrary
 import org.jetbrains.kotlinx.jupyter.api.libraries.dependencies
 import org.jetbrains.kotlinx.jupyter.api.textResult
 import org.jetbrains.kotlinx.jupyter.intellij.utils.IntelliJPlatformClassloader
-import org.jetbrains.kotlinx.jupyter.intellij.utils.Version
 import org.jetbrains.kotlinx.jupyter.intellij.utils.toVersion
 import org.jetbrains.kotlinx.jupyter.util.ModifiableParentsClassLoader
 import kotlin.io.path.pathString
@@ -18,6 +17,11 @@ import kotlin.io.path.pathString
  * Represents a class loader that loads classes from the IntelliJ Platform.
  */
 internal val intelliJPlatformClassLoader: IntelliJPlatformClassloader by lazy { IntelliJPlatformClassloader() }
+
+/**
+ * Represents the minimal supported version of the IDE required for running all parts of the IntelliJ Platform integration.
+ */
+private val MINIMAL_SUPPORTED_IDE_VERSION = "2025.1.3".toVersion()
 
 /**
  * Represents a Jupyter integration for the IntelliJ Platform.
@@ -32,7 +36,7 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
 
             loadIntelliJPlatform(notebook)
 
-            if (productInfo.version.toVersion() >= Version(2025, 1, 3)) {
+            if (productInfo.version.toVersion() >= MINIMAL_SUPPORTED_IDE_VERSION) {
                 initializeDisposable()
                 initializeIntelliJPlatformClassloader(notebook)
             } else {

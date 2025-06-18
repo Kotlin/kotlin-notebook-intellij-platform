@@ -36,8 +36,8 @@ fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String
 
     USE {
         dependencies {
-            jars.forEach {
-                implementation(it.pathString)
+            for (jar in jars) {
+                implementation(jar.pathString)
             }
         }
     }
@@ -69,7 +69,7 @@ fun ScriptTemplateWithDisplayHelpers.loadPlugins(
         if (loadClasses) {
             USE {
                 dependencies {
-                    plugin.pluginPath.collectJars().forEach { path ->
+                    for (path in plugin.pluginPath.collectJars()) {
                         implementation(path.pathString)
                     }
                 }
