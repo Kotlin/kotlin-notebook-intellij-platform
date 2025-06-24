@@ -40,11 +40,11 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
                 initializeDisposable()
                 initializeIntelliJPlatformClassloader(notebook)
             } else {
-                displayText(
+                error(
                     """
-                        You are running ${productInfo.name} ${productInfo.version}.
-                        The `notebookDisposable` and `loadPlugins()` are not fully supported in this version of the IDE.
-                        Please upgrade to 2025.1.3 or higher for the full IntelliJ Platform integration experience.
+                    You are running ${productInfo.name} ${productInfo.version}.
+                    The `notebookDisposable` and `loadPlugins()` are not fully supported in this version of the IDE.
+                    Please upgrade to 2025.1.3 or higher for the full IntelliJ Platform integration experience.
                     """.trimIndent()
                 )
             }

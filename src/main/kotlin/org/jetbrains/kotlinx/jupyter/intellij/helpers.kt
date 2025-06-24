@@ -4,14 +4,13 @@ package org.jetbrains.kotlinx.jupyter.intellij
 
 import com.intellij.ide.plugins.PluginMainDescriptor
 import com.intellij.ide.plugins.PluginManagerCore
+import com.intellij.openapi.application.invokeAndWaitIfNeeded
 import com.intellij.openapi.extensions.PluginId
-import jupyter.kotlin.EXECUTE
 import jupyter.kotlin.ScriptTemplateWithDisplayHelpers
-import jupyter.kotlin.USE
 import org.jetbrains.kotlinx.dataframe.AnyFrame
 import org.jetbrains.kotlinx.dataframe.api.toDataFrame
+import org.jetbrains.kotlinx.jupyter.api.exceptions.ReplUnwrappedExceptionImpl
 import org.jetbrains.kotlinx.jupyter.api.libraries.dependencies
-import org.jetbrains.kotlinx.jupyter.api.outputs.display
 import org.jetbrains.kotlinx.jupyter.intellij.utils.PluginRequest
 import org.jetbrains.kotlinx.jupyter.intellij.utils.collectJars
 import org.jetbrains.kotlinx.jupyter.intellij.utils.extract
@@ -20,7 +19,11 @@ import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
-import com.intellij.openapi.application.runInEdt as runInEdtBase
+
+/**
+ * Throws an [ReplUnwrappedExceptionImpl] with the specified [message].
+ */
+fun error(message: String): Nothing = throw ReplUnwrappedExceptionImpl(message)
 
 /**
  * Loads and integrates the specified bundled plugins into the current script context.
@@ -50,7 +53,6 @@ fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String
  * @param pluginIds A list of plugin IDs to load.
  * @param loadClasses If true, the method loads the plugin classes into the current context. Defaults to true.
  * @param loadClassLoader If true, the method loads the plugin class loaders into the current context. Defaults to true.
- * @return A list of [PluginMainDescriptor] objects representing the requested plugins.
  * @throws IllegalArgumentException If any specified plugin ID does not match an enabled plugin in the current IDE.
  */
 @Suppress("UnstableApiUsage", "unused")
@@ -58,33 +60,35 @@ fun ScriptTemplateWithDisplayHelpers.loadPlugins(
     vararg pluginIds: String,
     loadClasses: Boolean = true,
     loadClassLoader: Boolean = true,
-): List<PluginMainDescriptor> = pluginIds
-    .asSequence()
-    .map { pluginId ->
-        requireNotNull(pluginManager.findEnabledPlugin(PluginId.getId(pluginId)) as? PluginMainDescriptor) {
-            "Plugin '$pluginId' is not found in the current IDE"
+) {
+    pluginIds
+        .asSequence()
+        .map { pluginId ->
+            requireNotNull(pluginManager.findEnabledPlugin(PluginId.getId(pluginId)) as? PluginMainDescriptor) {
+                "Plugin '$pluginId' is not found in the current IDE"
+            }
         }
-    }
-    .onEach { plugin ->
-        if (loadClasses) {
-            USE {
-                dependencies {
-                    for (path in plugin.pluginPath.collectJars()) {
-                        implementation(path.pathString)
+        .onEach { plugin ->
+            if (loadClasses) {
+                USE {
+                    dependencies {
+                        for (path in plugin.pluginPath.collectJars()) {
+                            implementation(path.pathString)
+                        }
                     }
                 }
             }
         }
-    }
-    .onEach { plugin ->
-        if (loadClassLoader) {
-            val pluginClassloaders = plugin.content.modules
-                .map { it.descriptor.classLoader } + listOf(plugin.classLoader)
+        .onEach { plugin ->
+            if (loadClassLoader) {
+                val pluginClassloaders = plugin.content.modules
+                    .map { it.descriptor.classLoader } + listOf(plugin.classLoader)
 
-            intelliJPlatformClassLoader.addParents(pluginClassloaders)
+                intelliJPlatformClassLoader.addParents(pluginClassloaders)
+            }
         }
-    }
-    .toList()
+        .toList()
+}
 
 /**
  * Prints the list of installed plugins in the currently run IDE.
@@ -111,14 +115,15 @@ fun ScriptTemplateWithDisplayHelpers.printPlugins(): AnyFrame {
  * Runs the given [block] in the EDT.
  * If an exception is thrown, it is displayed in the output.
  */
-fun ScriptTemplateWithDisplayHelpers.runInEdt(block: () -> Unit) = runInEdtBase {
+@Suppress("UnstableApiUsage")
+fun ScriptTemplateWithDisplayHelpers.runInEdt(block: () -> Unit): Unit =
     runCatching {
-        block()
+        invokeAndWaitIfNeeded {
+            block()
+        }
     }.onFailure {
-        userHandlesProvider.notebook.display(it, null)
-    }
-}
-
+        error(it.cause?.message.orEmpty())
+    }.getOrNull() ?: Unit
 
 /**
  * TODO: Hidden from public as there's no real use-case for it yet.
