@@ -2,19 +2,23 @@
 
 package org.jetbrains.kotlinx.jupyter.intellij
 
+import com.intellij.ide.DataManager
+import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.ProjectManager
 
 /**
  * Returns the current open [Project] instance or null if no projects are open.
  *
  * @return the current [Project] instance or null
  */
-fun currentProject(): Project? = ProjectManager.getInstance().openProjects.firstOrNull()
+fun currentProject(): Project? = DataManager.getInstance()
+    .dataContextFromFocusAsync
+    .blockingGet(3000)
+    ?.let(CommonDataKeys.PROJECT::getData)
 
 /**
  * Returns the current [FileEditor] instance or null if no editor is open.
