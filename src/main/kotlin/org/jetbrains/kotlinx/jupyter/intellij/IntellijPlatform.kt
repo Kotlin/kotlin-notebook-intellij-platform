@@ -11,6 +11,8 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import jupyter.kotlin.ScriptTemplateWithDisplayHelpers
 import org.jetbrains.kotlinx.jupyter.api.Notebook
+import org.jetbrains.kotlinx.jupyter.intellij.utils.IntellijDataProviderProxy
+import org.jetbrains.kotlinx.jupyter.intellij.utils.createProxy
 import org.jetbrains.kotlinx.jupyter.intellij.utils.getPropertyValue
 
 /**
@@ -23,13 +25,14 @@ fun ScriptTemplateWithDisplayHelpers.currentProject(): Project? {
 }
 
 internal fun currentProjectFromNotebook(notebook: Notebook): Project? {
-    return notebook.currentProjectFromKernelRunMode() ?: currentProjectFromFocus()
+    return notebook.intellijDataProvider?.currentProject ?: currentProjectFromFocus()
 }
 
-private fun Notebook.currentProjectFromKernelRunMode(): Project? {
-    return kernelRunMode
-        .getPropertyValue("intellijDataProvider")
-        ?.getPropertyValue("currentProject") as? Project
+val Notebook.intellijDataProvider: IntellijDataProviderProxy? get() {
+    val providerInstance = kernelRunMode
+        .getPropertyValue("intellijDataProvider") ?: return null
+
+    return createProxy(providerInstance)
 }
 
 private fun currentProjectFromFocus(): Project? {
