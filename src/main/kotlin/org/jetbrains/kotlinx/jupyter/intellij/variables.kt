@@ -30,10 +30,12 @@ val idePath: Path by lazy {
  * Represents an IDE instance, which allows interacting with plugins and resolve their dependencies based on the IDE's configuration.
  */
 val ide: ProductInfoBasedIde by lazy {
-    requireNotNull(createIde {
-        missingLayoutFileMode = SKIP_SILENTLY
-        path = idePath
-    } as? ProductInfoBasedIde)
+    requireNotNull(
+        createIde {
+            missingLayoutFileMode = SKIP_SILENTLY
+            path = idePath
+        } as? ProductInfoBasedIde,
+    )
 }
 
 /**
@@ -43,7 +45,6 @@ val ide: ProductInfoBasedIde by lazy {
 val pluginRepository: PluginRepository by lazy {
     PluginRepositoryFactory.create("https://plugins.jetbrains.com")
 }
-
 
 /**
  * Provides a lazily initialized instance of the [PluginManager], which allows accessing information about plugins

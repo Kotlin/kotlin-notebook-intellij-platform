@@ -8,7 +8,6 @@ class Version(
     val patch: Int = 0,
     val version: String = "",
 ) : Comparable<Version> {
-
     private inline fun Int.or(other: () -> Int) = takeIf { this != 0 } ?: other()
 
     override fun compareTo(other: Version) =

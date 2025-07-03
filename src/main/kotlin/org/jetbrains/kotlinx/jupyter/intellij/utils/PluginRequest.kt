@@ -17,22 +17,26 @@ internal data class PluginRequest(val id: String, var version: String? = null, v
          * @return The [PluginRequest] object with the parsed information.
          */
         fun parse(notation: String): PluginRequest {
-            val (idWithVersion, channel) = notation.split("@", limit = 2).let {
-                it.first() to (it.getOrNull(1) ?: DEFAULT_CHANNEL)
-            }
+            val (idWithVersion, channel) =
+                notation.split("@", limit = 2).let {
+                    it.first() to (it.getOrNull(1) ?: DEFAULT_CHANNEL)
+                }
 
-            val (id, version) = idWithVersion.split(":", limit = 2).let {
-                it.first() to it.getOrNull(1)
-            }
+            val (id, version) =
+                idWithVersion.split(":", limit = 2).let {
+                    it.first() to it.getOrNull(1)
+                }
 
             return PluginRequest(id, version, channel)
         }
     }
 }
 
-internal fun PluginRequest.resolveCompatibleVersion(platformType: String, platformVersion: String) =
-    pluginRepository.pluginManager.searchCompatibleUpdates(
-        build = "$platformType-$platformVersion",
-        xmlIds = listOf(id),
-        channel = channel,
-    ).firstOrNull()?.version
+internal fun PluginRequest.resolveCompatibleVersion(
+    platformType: String,
+    platformVersion: String,
+) = pluginRepository.pluginManager.searchCompatibleUpdates(
+    build = "$platformType-$platformVersion",
+    xmlIds = listOf(id),
+    channel = channel,
+).firstOrNull()?.version

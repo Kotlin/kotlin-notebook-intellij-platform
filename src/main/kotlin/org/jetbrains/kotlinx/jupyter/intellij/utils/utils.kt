@@ -42,8 +42,9 @@ private val matchers by lazy {
     }
 }
 
-internal fun Path.collectJars() = Files.walk(this)
-    .asSequence()
-    .filter { path -> Files.isRegularFile(path) }
-    .filter { path -> matchers.any { it.matches(path) } }
-    .toList()
+internal fun Path.collectJars() =
+    Files.walk(this)
+        .asSequence()
+        .filter { path -> Files.isRegularFile(path) }
+        .filter { path -> matchers.any { it.matches(path) } }
+        .toList()

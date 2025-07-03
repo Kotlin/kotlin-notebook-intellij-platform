@@ -12,11 +12,12 @@ fun getClassForName(className: String): Class<*> {
  * @return Path object representing the IDE installation directory
  */
 fun getIntelliJPlatformPath(): Path {
-    val homePath = invokeMethod<String>(
-        IntelliJPlatformClasses.PathManager.name,
-        "getHomePath",
-        null,
-        emptyList(),
-    )
+    val homePath =
+        invokeMethod<String>(
+            IntelliJPlatformClasses.PathManager.name,
+            "getHomePath",
+            null,
+            emptyList(),
+        )
     return Paths.get(homePath)
 }

@@ -31,20 +31,22 @@ fun error(message: String): Nothing = throw ReplUnwrappedExceptionImpl(message)
  * @param pluginIds A list of plugin IDs to be loaded. Each identifier can represent either the plugin ID or the module ID.
  * @return Unit
  */
-fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String): Unit = USE {
-    val jars = pluginIds.asSequence()
-        .mapNotNull { ide.findPluginById(it) ?: ide.findPluginByModule(it) }
-        .flatMap { it.classpath.paths }
-        .toSet()
-
+fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String): Unit =
     USE {
-        dependencies {
-            for (jar in jars) {
-                implementation(jar.pathString)
+        val jars =
+            pluginIds.asSequence()
+                .mapNotNull { ide.findPluginById(it) ?: ide.findPluginByModule(it) }
+                .flatMap { it.classpath.paths }
+                .toSet()
+
+        USE {
+            dependencies {
+                for (jar in jars) {
+                    implementation(jar.pathString)
+                }
             }
         }
     }
-}
 
 /**
  * Loads plugins installed in the current IDE into the script context based on their plugin IDs.
@@ -81,8 +83,9 @@ fun ScriptTemplateWithDisplayHelpers.loadPlugins(
         }
         .onEach { plugin ->
             if (loadClassLoader) {
-                val pluginClassloaders = plugin.content.modules
-                    .map { it.descriptor.classLoader } + listOf(plugin.classLoader)
+                val pluginClassloaders =
+                    plugin.content.modules
+                        .map { it.descriptor.classLoader } + listOf(plugin.classLoader)
 
                 intelliJPlatformClassLoader.addParents(pluginClassloaders)
             }
@@ -143,9 +146,10 @@ fun ScriptTemplateWithDisplayHelpers.runInEdt(block: () -> Unit): Unit =
  * @return The path to the directory where the downloaded plugin was extracted, or null if any issue occurs during the process.
  */
 private fun ScriptTemplateWithDisplayHelpers.downloadPlugin(pluginId: String): Path? {
-    val storage = userHandlesProvider.notebook.workingDir
-        .resolve(".intellijPlatform/kotlinNotebook")
-        .createDirectories()
+    val storage =
+        userHandlesProvider.notebook.workingDir
+            .resolve(".intellijPlatform/kotlinNotebook")
+            .createDirectories()
 
     val platformType = productInfo.productCode
     val platformVersion = productInfo.buildNumber
@@ -154,9 +158,10 @@ private fun ScriptTemplateWithDisplayHelpers.downloadPlugin(pluginId: String): P
 
     val id = pluginRequest.id
     val channel = pluginRequest.channel
-    val version = pluginRequest.version
-        ?: pluginRequest.resolveCompatibleVersion(platformType, platformVersion)
-        ?: error("Failed to resolve version for plugin '$id'")
+    val version =
+        pluginRequest.version
+            ?: pluginRequest.resolveCompatibleVersion(platformType, platformVersion)
+            ?: error("Failed to resolve version for plugin '$id'")
 
     val name = "$id-$version"
     val pluginDirectory = storage.resolve(name)

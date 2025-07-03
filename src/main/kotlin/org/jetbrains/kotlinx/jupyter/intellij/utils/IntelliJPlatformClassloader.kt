@@ -10,7 +10,6 @@ import kotlin.collections.ArrayDeque
 
 @Suppress("UnstableApiUsage")
 class IntelliJPlatformClassloader : ClassLoader() {
-
     val allParents = mutableListOf<ClassLoader>()
 
     private fun getParents(classLoader: ClassLoader): List<ClassLoader> {
@@ -20,7 +19,6 @@ class IntelliJPlatformClassloader : ClassLoader() {
         }
     }
 
-
     fun addParents(parents: List<ClassLoader>) {
         val newParents = parents // collectWithParents(parents, ::getParents)
         val sorted = topologicalMergeSortedAndNew(allParents, newParents, ::getParents)
@@ -29,7 +27,10 @@ class IntelliJPlatformClassloader : ClassLoader() {
         allParents.addAll(sorted)
     }
 
-    override fun loadClass(name: String, resolve: Boolean): Class<*> {
+    override fun loadClass(
+        name: String,
+        resolve: Boolean,
+    ): Class<*> {
         // First, check if a class is already loaded
         val loaded = findLoadedClass(name)
         if (loaded != null) {
@@ -41,14 +42,15 @@ class IntelliJPlatformClassloader : ClassLoader() {
             try {
                 // Simplification of logic from PluginClassLoader#tryLoadingClass: further generations will be grateful
                 // Ideally, we also need to take UrlClassLoaders into consideration: these guys load plugin libraries
-                val clazz = if (parent is PluginClassLoader) {
-                    if (parent.calculateConsistency(name) != null) {
-                        continue
+                val clazz =
+                    if (parent is PluginClassLoader) {
+                        if (parent.calculateConsistency(name) != null) {
+                            continue
+                        }
+                        parent.loadClassInsideSelf(name)
+                    } else {
+                        parent.loadClass(name)
                     }
-                    parent.loadClassInsideSelf(name)
-                } else {
-                    parent.loadClass(name)
-                }
                 if (clazz == null) continue
                 if (resolve) resolveClass(clazz)
                 return clazz
@@ -71,24 +73,29 @@ class IntelliJPlatformClassloader : ClassLoader() {
     }
 
     override fun getResources(name: String): Enumeration<URL?>? {
-        val resources = allParents.flatMap {
-            try {
-                it.getResources(name).toList()
-            } catch (_: IOException) {
-                emptyList()
+        val resources =
+            allParents.flatMap {
+                try {
+                    it.getResources(name).toList()
+                } catch (_: IOException) {
+                    emptyList()
+                }
             }
-        }
         return Collections.enumeration(resources)
     }
 
-    private val resolveScopeField = PluginClassLoader::class.java.getDeclaredField("_resolveScopeManager").apply {
-        isAccessible = true
-    }
+    private val resolveScopeField =
+        PluginClassLoader::class.java.getDeclaredField("_resolveScopeManager").apply {
+            isAccessible = true
+        }
 
     /**
      * See [ResolveScopeManager.isDefinitelyAlienClass].
      */
-    private fun PluginClassLoader.calculateConsistency(name: String, force: Boolean = false): String? {
+    private fun PluginClassLoader.calculateConsistency(
+        name: String,
+        force: Boolean = false,
+    ): String? {
         return this.packagePrefix?.let {
             (resolveScopeField.get(this) as ResolveScopeManager)
                 .isDefinitelyAlienClass(name = name, packagePrefix = it, force = force)
