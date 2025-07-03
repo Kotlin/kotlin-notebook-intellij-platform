@@ -2,7 +2,6 @@ import org.jetbrains.kotlinx.publisher.apache2
 import org.jetbrains.kotlinx.publisher.developer
 
 plugins {
-    alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.jupyter.api)
     alias(libs.plugins.publisher)

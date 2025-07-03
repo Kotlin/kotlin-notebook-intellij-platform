@@ -1,6 +1,5 @@
 [versions]
 kotlin = "2.2.0"
-ksp = "2.2.0-RC3-2.0.2"
 kotlin-jupyter = "0.13.0-481-1"
 dataframe-core = "1.0.0-dev-7473"
 publishPlugin = "1.9.23-dev-45"
@@ -18,7 +17,6 @@ dataframe-core = { group = "org.jetbrains.kotlinx", name = "dataframe-core", ver
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-jupyter-api = { id = "org.jetbrains.kotlin.jupyter.api", version.ref = "kotlin-jupyter" }
 publisher = { id = "org.jetbrains.kotlin.libs.publisher", version.ref = "publishPlugin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
