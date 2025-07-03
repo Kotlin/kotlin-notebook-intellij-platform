@@ -9,31 +9,53 @@ import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
+import jupyter.kotlin.ScriptTemplateWithDisplayHelpers
+import org.jetbrains.kotlinx.jupyter.api.Notebook
+import org.jetbrains.kotlinx.jupyter.intellij.utils.getPropertyValue
 
 /**
  * Returns the current open [Project] instance or null if no projects are open.
  *
  * @return the current [Project] instance or null
  */
-fun currentProject(): Project? = DataManager.getInstance()
-    .dataContextFromFocusAsync
-    .blockingGet(3000)
-    ?.let(CommonDataKeys.PROJECT::getData)
+fun ScriptTemplateWithDisplayHelpers.currentProject(): Project? {
+    return currentProjectFromNotebook(notebook)
+}
+
+internal fun currentProjectFromNotebook(notebook: Notebook): Project? {
+    return notebook.currentProjectFromKernelRunMode() ?: currentProjectFromFocus()
+}
+
+private fun Notebook.currentProjectFromKernelRunMode(): Project? {
+    return kernelRunMode
+        .getPropertyValue("intellijDataProvider")
+        ?.getPropertyValue("currentProject") as? Project
+}
+
+private fun currentProjectFromFocus(): Project? {
+    return DataManager.getInstance()
+        .dataContextFromFocusAsync
+        .blockingGet(3000)
+        ?.let(CommonDataKeys.PROJECT::getData)
+}
 
 /**
  * Returns the current [FileEditor] instance or null if no editor is open.
  *
  * @return the current [FileEditor] instance or null
  */
-fun currentEditor(): FileEditor? = currentProject()?.let { project ->
-    FileEditorManager.getInstance(project).selectedEditor
-}
+fun ScriptTemplateWithDisplayHelpers.currentEditor(): FileEditor? =
+    currentProject()?.let { project ->
+        FileEditorManager.getInstance(project).selectedEditor
+    }
 
 /**
  * Registers the given [instance] as an extension for the given [extensionPointName].
  */
-inline fun <reified T : Any> registerExtension(extensionPointName: ExtensionPointName<T>, instance: T) =
-    ApplicationManager.getApplication()
-        .extensionArea
-        .getExtensionPoint(extensionPointName)
-        .registerExtension(instance, notebookDisposable)
+inline fun <reified T : Any> registerExtension(
+    extensionPointName: ExtensionPointName<T>,
+    instance: T,
+) = ApplicationManager.getApplication()
+    .extensionArea
+    .getExtensionPoint(extensionPointName)
+    .registerExtension(instance, notebookDisposable)

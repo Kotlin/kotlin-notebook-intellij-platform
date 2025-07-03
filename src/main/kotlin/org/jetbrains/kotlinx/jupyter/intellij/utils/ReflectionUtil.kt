@@ -1,5 +1,8 @@
 package org.jetbrains.kotlinx.jupyter.intellij.utils
 
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.isAccessible
+
 fun <T> invokeMethod(
     className: String,
     methodName: String,
@@ -28,6 +31,18 @@ fun <T> getField(
 
     @Suppress("UNCHECKED_CAST")
     return field.get(instance) as T
+}
+
+/**
+ * If this object has a Kotlin property with this name, returns its value.
+ * Otherwise, returns null.
+ */
+@Suppress("unused")
+fun Any.getPropertyValue(name: String): Any? {
+    val kClass = this::class
+    val property = kClass.memberProperties.find { it.name == name } ?: return null
+    property.isAccessible = true
+    return property.getter.call(this)
 }
 
 fun argumentsOf(vararg args: Pair<Class<*>, Any?>): List<Argument> {
