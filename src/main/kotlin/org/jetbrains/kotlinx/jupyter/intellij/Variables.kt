@@ -59,6 +59,9 @@ val pluginManager: PluginManager by lazy {
  */
 val productInfo: ProductInfo by lazy {
     val parser = ProductInfoParser()
-    val file = requireNotNull(idePath.resolve("Resources/product-info.json").takeIf { it.exists() })
+    val file = listOf(
+        idePath.resolve("product-info.json"),
+        idePath.resolve("Resources/product-info.json"),
+    ).firstOrNull { it.exists() } ?: error("The product-info.json file not found")
     requireNotNull(parser.parse(file))
 }
