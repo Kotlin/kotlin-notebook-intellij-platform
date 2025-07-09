@@ -18,7 +18,7 @@ import org.jetbrains.kotlinx.jupyter.intellij.utils.resolveCompatibleVersion
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
-import kotlin.io.path.pathString
+import kotlin.io.path.invariantSeparatorsPathString
 
 /**
  * Throws an [ReplUnwrappedExceptionImpl] with the specified [message].
@@ -42,7 +42,7 @@ fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String
         USE {
             dependencies {
                 for (jar in jars) {
-                    implementation(jar.pathString)
+                    implementation(jar.invariantSeparatorsPathString)
                 }
             }
         }
@@ -75,7 +75,7 @@ fun ScriptTemplateWithDisplayHelpers.loadPlugins(
                 USE {
                     dependencies {
                         for (path in plugin.pluginPath.collectJars()) {
-                            implementation(path.pathString)
+                            implementation(path.invariantSeparatorsPathString)
                         }
                     }
                 }
