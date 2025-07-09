@@ -21,7 +21,7 @@ internal val intelliJPlatformClassLoader: IntelliJPlatformClassloader by lazy { 
 /**
  * Represents the minimal supported version of the IDE required for running all parts of the IntelliJ Platform integration.
  */
-private val MINIMAL_SUPPORTED_IDE_VERSION = "2025.1.3".toVersion()
+private val MINIMAL_SUPPORTED_IDE_VERSION = "2025.2".toVersion()
 
 /**
  * Represents a Jupyter integration for the IntelliJ Platform.
