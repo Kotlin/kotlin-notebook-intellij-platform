@@ -24,10 +24,16 @@ fun ScriptTemplateWithDisplayHelpers.currentProject(): Project? {
     return currentProjectFromNotebook(notebook)
 }
 
+/**
+ * Returns the current open [Project] instance or null if no projects are open.
+ */
 internal fun currentProjectFromNotebook(notebook: Notebook): Project? {
     return notebook.intellijDataProvider?.currentProject ?: currentProjectFromFocus()
 }
 
+/**
+ * Returns the [IntellijDataProviderProxy] instance for the current notebook, if any.
+ */
 val Notebook.intellijDataProvider: IntellijDataProviderProxy? get() {
     val providerInstance = kernelRunMode
         .getPropertyValue("intellijDataProvider") ?: return null
@@ -35,6 +41,9 @@ val Notebook.intellijDataProvider: IntellijDataProviderProxy? get() {
     return createProxy(providerInstance)
 }
 
+/**
+ * Returns the current open [Project] instance or null if no projects are open.
+ */
 private fun currentProjectFromFocus(): Project? {
     return DataManager.getInstance()
         .dataContextFromFocusAsync
