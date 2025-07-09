@@ -1,16 +1,20 @@
 package org.jetbrains.kotlinx.jupyter.intellij
 
+import com.intellij.ide.plugins.PluginMainDescriptor
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.util.Disposer
+import com.intellij.platform.plugins.parser.impl.PluginDescriptorBuilder
 import com.jetbrains.plugin.structure.ide.ProductInfoBasedIde
 import com.jetbrains.plugin.structure.ide.createIde
 import com.jetbrains.plugin.structure.ide.layout.MissingLayoutFileMode.SKIP_SILENTLY
 import com.jetbrains.plugin.structure.intellij.platform.ProductInfo
 import com.jetbrains.plugin.structure.intellij.platform.ProductInfoParser
+import jupyter.kotlin.ScriptTemplateWithDisplayHelpers
 import org.jetbrains.intellij.pluginRepository.PluginRepository
 import org.jetbrains.intellij.pluginRepository.PluginRepositoryFactory
 import org.jetbrains.kotlinx.jupyter.intellij.utils.getIntelliJPlatformPath
+import java.net.URLClassLoader
 import java.nio.file.Path
 import kotlin.io.path.exists
 
@@ -18,6 +22,24 @@ import kotlin.io.path.exists
  * Represents a disposable used for managing the IntelliJ Platform lifetime of the current notebook.
  */
 val notebookDisposable: Disposable = Disposer.newCheckedDisposable("Kotlin Notebook")
+
+/**
+ * Represents a plugin descriptor for the plugin created with Kotlin Notebook IntelliJ Platform integration.
+ */
+@Suppress("UnstableApiUsage")
+val ScriptTemplateWithDisplayHelpers.notebookPluginDescriptor: PluginMainDescriptor
+    get() = PluginMainDescriptor(
+        raw = PluginDescriptorBuilder.builder().apply {
+            id = "kotlin.notebook.plugin"
+            name = "Kotlin Notebook Plugin"
+            version = "1.0"
+        }.build(),
+        pluginPath = notebook.workingDir,
+        isBundled = false,
+    ).apply {
+        val url = notebook.workingDir.toUri().toURL()
+        pluginClassLoader = URLClassLoader(arrayOf(url), notebook.intermediateClassLoader)
+    }
 
 /**
  * Represents the resolved file system path to the IntelliJ Platform installation directory.

@@ -64,10 +64,10 @@ fun ScriptTemplateWithDisplayHelpers.currentEditor(): FileEditor? =
 /**
  * Registers the given [instance] as an extension for the given [extensionPointName].
  */
-inline fun <reified T : Any> registerExtension(
+inline fun <reified T : Any> ScriptTemplateWithDisplayHelpers.registerExtension(
     extensionPointName: ExtensionPointName<T>,
     instance: T,
 ) = ApplicationManager.getApplication()
     .extensionArea
     .getExtensionPoint(extensionPointName)
-    .registerExtension(instance, notebookDisposable)
+    .registerExtension(instance, notebookPluginDescriptor, notebookDisposable)
