@@ -11,7 +11,7 @@ import org.jetbrains.kotlinx.jupyter.api.textResult
 import org.jetbrains.kotlinx.jupyter.intellij.utils.IntelliJPlatformClassloader
 import org.jetbrains.kotlinx.jupyter.intellij.utils.toVersion
 import org.jetbrains.kotlinx.jupyter.util.ModifiableParentsClassLoader
-import kotlin.io.path.pathString
+import kotlin.io.path.invariantSeparatorsPathString
 
 /**
  * Represents a class loader that loads classes from the IntelliJ Platform.
@@ -65,7 +65,7 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
 
                 dependencies {
                     intelliJPlatformJars.forEach {
-                        implementation(it.pathString)
+                        implementation(it.invariantSeparatorsPathString)
                     }
                 }
             },
