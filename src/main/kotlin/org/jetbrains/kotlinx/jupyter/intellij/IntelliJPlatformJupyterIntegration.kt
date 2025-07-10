@@ -11,6 +11,7 @@ import org.jetbrains.kotlinx.jupyter.api.textResult
 import org.jetbrains.kotlinx.jupyter.intellij.utils.IntelliJPlatformClassloader
 import org.jetbrains.kotlinx.jupyter.intellij.utils.toVersion
 import org.jetbrains.kotlinx.jupyter.util.ModifiableParentsClassLoader
+import java.net.URLClassLoader
 import kotlin.io.path.invariantSeparatorsPathString
 
 /**
@@ -89,6 +90,9 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
 
     private fun initializeIntelliJPlatformClassloader(notebook: Notebook) {
         val base = notebook.intermediateClassLoader as ModifiableParentsClassLoader
+        val workingDir = notebook.workingDir.toUri().toURL()
+
+        base.addParent(URLClassLoader(arrayOf(workingDir)))
         base.addParent(intelliJPlatformClassLoader)
     }
 

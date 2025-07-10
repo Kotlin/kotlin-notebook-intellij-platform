@@ -14,7 +14,6 @@ import jupyter.kotlin.ScriptTemplateWithDisplayHelpers
 import org.jetbrains.intellij.pluginRepository.PluginRepository
 import org.jetbrains.intellij.pluginRepository.PluginRepositoryFactory
 import org.jetbrains.kotlinx.jupyter.intellij.utils.getIntelliJPlatformPath
-import java.net.URLClassLoader
 import java.nio.file.Path
 import kotlin.io.path.exists
 
@@ -37,8 +36,7 @@ val ScriptTemplateWithDisplayHelpers.notebookPluginDescriptor: PluginMainDescrip
         pluginPath = notebook.workingDir,
         isBundled = false,
     ).apply {
-        val url = notebook.workingDir.toUri().toURL()
-        pluginClassLoader = URLClassLoader(arrayOf(url), notebook.intermediateClassLoader)
+        pluginClassLoader = notebook.intermediateClassLoader
     }
 
 /**
