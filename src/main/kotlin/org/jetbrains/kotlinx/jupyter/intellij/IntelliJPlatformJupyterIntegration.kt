@@ -44,7 +44,7 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
                     """
                     You are running ${productInfo.name} ${productInfo.version}.
                     The `notebookDisposable` and `loadPlugins()` are not fully supported in this version of the IDE.
-                    Please upgrade to 2025.1.3 or higher for the full IntelliJ Platform integration experience.
+                    Please upgrade to $MINIMAL_SUPPORTED_IDE_VERSION or higher for the full IntelliJ Platform integration experience.
                     """.trimIndent(),
                 )
             }
@@ -57,6 +57,7 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
                 ?.firstOrNull()
                 ?.bootClassPathJarNames
                 .orEmpty()
+                .filter { "kotlin-stdlib" !in it }
                 .map { idePath.resolve("lib/$it") }
                 .toSet()
 

@@ -1,13 +1,15 @@
 [versions]
 kotlin = "2.2.0"
-kotlin-jupyter = "0.13.0-481-1"
+kotlin-jupyter = "0.14.1-533-1"
 dataframe-core = "1.0.0-dev-7473"
-publishPlugin = "1.9.23-dev-45"
+publishPlugin = "2.2.0-dev-69"
+versionsPlugin = "0.52.0"
 ktlintGradle = "12.3.0"
 intellijPlatformGradlePlugin = "2.6.0"
 intellijPlatform = "252-EAP-SNAPSHOT" # TODO: lower to 2025.1.3 GA whenever released with required changes
-intellijPluginRepositoryRestClient = "2.0.46"
-intellijStructure = "3.307"
+intellijPluginRepositoryRestClient = "2.0.47"
+intellijStructure = "3.310"
+shadowJarUtil = "0.4.1-9"
 
 [libraries]
 intellij-structure-ide = { group = "org.jetbrains.intellij.plugins", name = "structure-ide", version.ref = "intellijStructure" }
@@ -21,3 +23,5 @@ kotlin-jupyter-api = { id = "org.jetbrains.kotlin.jupyter.api", version.ref = "k
 publisher = { id = "org.jetbrains.kotlin.libs.publisher", version.ref = "publishPlugin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
 intellij-platform-base = { id = "org.jetbrains.intellij.platform.base", version.ref = "intellijPlatformGradlePlugin" }
+ben-manes-versions = { id = "com.github.ben-manes.versions", version.ref = "versionsPlugin" }
+shadowJar-util = { id = "org.jetbrains.gradle.shadow.util", version.ref = "shadowJarUtil" }

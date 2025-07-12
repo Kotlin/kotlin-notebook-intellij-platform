@@ -1,12 +1,17 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.ComponentsXmlResourceTransformer
+import org.jetbrains.gradle.shadow.registerShadowJarTasksBy
 import org.jetbrains.kotlinx.publisher.apache2
+import org.jetbrains.kotlinx.publisher.composeOfTaskOutputs
 import org.jetbrains.kotlinx.publisher.developer
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.jupyter.api)
     alias(libs.plugins.publisher)
+    alias(libs.plugins.shadowJar.util)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.intellij.platform.base)
+    alias(libs.plugins.ben.manes.versions)
 }
 
 val spaceUsername: String by properties
@@ -49,6 +54,8 @@ repositories {
     }
 }
 
+val shadowJar: Configuration by configurations.creating
+
 dependencies {
     api(libs.kotlin.jupyter.lib)
     api(libs.dataframe.core)
@@ -60,6 +67,11 @@ dependencies {
         intellijIdeaCommunity(libs.versions.intellijPlatform, useInstaller = false)
         bundledPlugin("intellij.jupyter")
     }
+
+    shadowJar.apply {
+        this(rootProject)
+        exclude(group = "org.jetbrains.kotlin")
+    }
 }
 
 tasks.test {
@@ -68,6 +80,20 @@ tasks.test {
 kotlin {
     jvmToolchain(21)
 }
+
+val platformShadowJar =
+    tasks.registerShadowJarTasksBy(
+        shadowJar,
+        withSources = true,
+        binaryTaskConfigurator = {
+            mergeServiceFiles()
+            exclude("**/module-info.class")
+            transform(ComponentsXmlResourceTransformer())
+            manifest {
+                attributes["Implementation-Version"] = project.version
+            }
+        },
+    )
 
 kotlinPublications {
     defaultGroup.set(group.toString())
@@ -102,5 +128,6 @@ kotlinPublications {
     publication {
         publicationName.set("kotlin-jupyter-intellij-platform")
         description.set("Kotlin Jupyter kernel integration for the IntelliJ Platform")
+        composeOfTaskOutputs(platformShadowJar)
     }
 }
