@@ -59,6 +59,7 @@ val shadowJar: Configuration by configurations.creating
 dependencies {
     api(libs.kotlin.jupyter.lib)
     api(libs.dataframe.core)
+    api(libs.dataframe.jupyter)
     implementation(libs.intellij.structure.ide)
     implementation(libs.intellij.pluginRepositoryRestClient)
     testImplementation(kotlin("test"))
@@ -88,6 +89,7 @@ val platformShadowJar =
         binaryTaskConfigurator = {
             mergeServiceFiles()
             exclude("**/module-info.class")
+            exclude("org/jetbrains/kotlinx/dataframe/**")
             transform(ComponentsXmlResourceTransformer())
             manifest {
                 attributes["Implementation-Version"] = project.version
