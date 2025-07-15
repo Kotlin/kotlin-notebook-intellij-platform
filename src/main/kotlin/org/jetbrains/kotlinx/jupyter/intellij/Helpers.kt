@@ -2,13 +2,12 @@
 
 package org.jetbrains.kotlinx.jupyter.intellij
 
+//import org.jetbrains.kotlinx.dataframe.AnyFrame
+//import org.jetbrains.kotlinx.dataframe.api.toDataFrame
 import com.intellij.ide.plugins.PluginMainDescriptor
-import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.application.invokeAndWaitIfNeeded
 import com.intellij.openapi.extensions.PluginId
 import jupyter.kotlin.ScriptTemplateWithDisplayHelpers
-import org.jetbrains.kotlinx.dataframe.AnyFrame
-import org.jetbrains.kotlinx.dataframe.api.toDataFrame
 import org.jetbrains.kotlinx.jupyter.api.exceptions.ReplUnwrappedExceptionImpl
 import org.jetbrains.kotlinx.jupyter.api.libraries.dependencies
 import org.jetbrains.kotlinx.jupyter.intellij.utils.PluginRequest
@@ -93,26 +92,26 @@ fun ScriptTemplateWithDisplayHelpers.loadPlugins(
         .toList()
 }
 
-/**
- * Prints the list of installed plugins in the currently run IDE.
- */
-fun ScriptTemplateWithDisplayHelpers.printPlugins(): AnyFrame {
-    USE {
-        EXECUTE("%use dataframe")
-    }
-
-    return with(PluginManagerCore.plugins) {
-        mapOf(
-            "ID" to map { it.pluginId },
-            "name" to map { it.name },
-            "version" to map { it.version },
-            "vendor" to map { it.vendor },
-            "bundled" to map { it.isBundled },
-            "loaded" to map { PluginManagerCore.isLoaded(it.pluginId) },
-            "enabled" to map { !PluginManagerCore.isDisabled(it.pluginId) },
-        )
-    }.toDataFrame()
-}
+///**
+// * Prints the list of installed plugins in the currently run IDE.
+// */
+//fun ScriptTemplateWithDisplayHelpers.printPlugins(): AnyFrame {
+//    USE {
+//        EXECUTE("%use dataframe")
+//    }
+//
+//    return with(PluginManagerCore.plugins) {
+//        mapOf(
+//            "ID" to map { it.pluginId },
+//            "name" to map { it.name },
+//            "version" to map { it.version },
+//            "vendor" to map { it.vendor },
+//            "bundled" to map { it.isBundled },
+//            "loaded" to map { PluginManagerCore.isLoaded(it.pluginId) },
+//            "enabled" to map { !PluginManagerCore.isDisabled(it.pluginId) },
+//        )
+//    }.toDataFrame()
+//}
 
 /**
  * Runs the given [block] in the EDT.

@@ -51,7 +51,7 @@ repositories {
 
 dependencies {
     api(libs.kotlin.jupyter.lib)
-    api(libs.dataframe.core)
+//    api(libs.dataframe.core)
     implementation(libs.intellij.structure.ide)
     implementation(libs.intellij.pluginRepositoryRestClient)
     testImplementation(kotlin("test"))
