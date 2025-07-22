@@ -71,3 +71,14 @@ inline fun <reified T : Any> ScriptTemplateWithDisplayHelpers.registerExtension(
     .extensionArea
     .getExtensionPoint(extensionPointName)
     .registerExtension(instance, notebookPluginDescriptor, notebookDisposable)
+
+/**
+ * Registers the given [instance] as an extension for the given [extensionPointName].
+ */
+inline fun <reified T : Any> ScriptTemplateWithDisplayHelpers.registerExtension(
+    extensionPointName: String,
+    instance: T,
+) = ApplicationManager.getApplication()
+    .extensionArea
+    .getExtensionPoint<T>(extensionPointName)
+    .registerExtension(instance, notebookPluginDescriptor, notebookDisposable)
