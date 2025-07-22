@@ -36,7 +36,7 @@ val ScriptTemplateWithDisplayHelpers.notebookPluginDescriptor: PluginMainDescrip
         pluginPath = notebook.workingDir,
         isBundled = false,
     ).apply {
-        pluginClassLoader = notebook.intermediateClassLoader
+        pluginClassLoader = notebook.executionHost?.lastClassLoader
     }
 
 /**
