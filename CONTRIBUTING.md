@@ -20,7 +20,7 @@ The current local development process involves a few manual steps:
     }
     ```
 2. Edit `gradle.properties` and increase the `devAddition` property from `1` to `2`.
-3. Update the `Local.json` file and replace `%VERSION%` with the same version number used in the previous step, for example changing `2` to get "0.0.2-2-SNAPSHOT".
+3. Update the `Local.json` file to replace `%VERSION%` with the same version number used in the previous step, for example changing `2` to get "0.0.2-2-SNAPSHOT".
 4. Run the `publishToMavenLocal` task to publish the integration locally.
 5. Load the local integration artifact using `%use /path/to/Local.json` instead of `%use intellij-platform`.
 6. Reload the Kotlin Notebook Kernel.

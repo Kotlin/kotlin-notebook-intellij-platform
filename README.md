@@ -1,85 +1,52 @@
-# IntelliJ Platform for Kotlin Jupyter
+# Kotlin Notebook IntelliJ Platform Integration
 
 [![JetBrains official project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 [![Kotlin experimental stability](https://img.shields.io/badge/project-experimental-kotlin.svg?colorA=555555&colorB=AC29EC&label=&logo=kotlin&logoColor=ffffff&logoWidth=10)](https://kotlinlang.org/docs/components-stability.html)
 ![GitHub](https://img.shields.io/github/license/Kotlin/kotlin-notebook-intellij-platform?color=blue&label=License)
 
-This repository contains an integration for [Kotlin notebooks](https://github.com/Kotlin/kotlin-jupyter) that provides access to the IntelliJ Platform APIs and plugins directly from your notebooks.
+This integration enables direct experimentation with IntelliJ Platform APIs within the active IntelliJ IDEA runtime, eliminating traditional plugin development barriers.
 
-## IntelliJ Platform Integration
+## Requirements
 
-Install this integration by running `%use intellij-platform` in your notebook.
-After that, your code can use IntelliJ Platform APIs without declaring any additional dependencies.
+IntelliJ IDEA 2025.2 or higher is required for full functionality.
 
-**Important**: This integration can only run inside the IntelliJ IDE process, not as a standalone.
-Enable embedded mode to run it.
+## Quick Start
 
-### Features
+1. Create a new Kotlin Notebook file (`.ipynb`) using <kbd>⌘⇧N</kbd> (macOS) or <kbd>Ctrl+Shift+N</kbd> (Windows/Linux).
+2. **Important**: Switch to **Run in IDE Process** mode in the notebook toolbar.
+3. In the first cell, execute: `%use intellij-platform`.
 
-* Access to IntelliJ Platform APIs directly from your notebook
-* Load bundled and installed plugins into your notebook
-* Run code in the Event Dispatch Thread (EDT) for UI operations
-* Automatic cleanup of resources when the kernel is restarted
-
-### Loading Plugins
-
-You can load bundled plugins from the IDE by their IDs:
+## Basic Example
 
 ```kotlin
-loadBundledPlugins("intellij.jupyter", "org.jetbrains.kotlin")
-```
-
-Or load installed plugins from your IDE:
-
-```kotlin
-loadPlugins("com.github.b3er.idea.plugins.arc.browser")
-```
-
-### Running Code in EDT
-
-For UI operations, you need to run code in the Event Dispatch Thread:
-
-```kotlin
-runInEdt {
-    // Your UI code here
-}
-```
-
-### Minimum IDE Version Requirements
-
-The full integration experience requires IntelliJ IDE version 2025.2 or higher. Some features like `notebookDisposable` and `loadPlugins()` may not be fully supported in earlier versions.
-
-## Example Usage
-
-Here's a simple example of using the IntelliJ Platform integration:
-
-```
 %use intellij-platform
 ```
 
 ```kotlin
-// Load the Kotlin plugin
-loadPlugins("org.jetbrains.kotlin")
-```
+import com.intellij.ui.dsl.builder.panel
 
-```kotlin
-// Access IntelliJ Platform APIs
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.application.ApplicationManager
-
-// Get the current project
-val project = currentProjectFromNotebook(notebook)
-
-// Run UI operations in EDT
-runInEdt {
-    // Your UI code here
-    println("Current project: ${project?.name}")
+panel {
+  row {
+    checkBox("Enable feature")
+      .comment("This checkbox is fully interactive")
+  }
 }
 ```
 
-## Development Status
+## Documentation
 
-This integration is currently in an experimental state. APIs may change in future releases.
+For comprehensive documentation, examples, and API reference, see:
+**[IntelliJ Platform Plugin SDK | Kotlin Notebook Integration](https://plugins.jetbrains.com/docs/intellij/tools-kotlin-notebook.html)**
+
+**Examples**: [kotlin-notebook-intellij-platform/examples](https://github.com/Kotlin/kotlin-notebook-intellij-platform/tree/master/examples)
+
+**Support**: [JetBrains Platform Forum - Kotlin Notebook](https://platform.jetbrains.com/c/intellij-platform/kotlin-notebook/25)
+
+## Contributing
+Read the [Contributing Guidelines](CONTRIBUTING.md).
+
+## Code of Conduct
+This project and the corresponding community are governed by the [JetBrains Open Source and Community Code of Conduct](https://github.com/jetbrains#code-of-conduct). Please make sure you read it.
 
 ## License
 
