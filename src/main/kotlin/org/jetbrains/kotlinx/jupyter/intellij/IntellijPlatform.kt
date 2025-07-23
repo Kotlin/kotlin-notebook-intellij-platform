@@ -22,9 +22,8 @@ import org.jetbrains.kotlinx.jupyter.intellij.utils.getPropertyValue
  *
  * @return the current [Project] instance or null
  */
-fun ScriptTemplateWithDisplayHelpers.currentProject(): Project? {
-    return currentProjectFromNotebook(notebook)
-}
+fun ScriptTemplateWithDisplayHelpers.currentProject(): Project =
+    requireNotNull(currentProjectFromNotebook(notebook))
 
 /**
  * Returns the current open [Project] instance or null if no projects are open.
@@ -36,12 +35,8 @@ internal fun currentProjectFromNotebook(notebook: Notebook): Project? {
 /**
  * Returns the [IntellijDataProviderProxy] instance for the current notebook, if any.
  */
-val Notebook.intellijDataProvider: IntellijDataProviderProxy? get() {
-    val providerInstance = kernelRunMode
-        .getPropertyValue("intellijDataProvider") ?: return null
-
-    return createProxy(providerInstance)
-}
+val Notebook.intellijDataProvider: IntellijDataProviderProxy?
+    get() = kernelRunMode.getPropertyValue("intellijDataProvider")?.let(::createProxy)
 
 /**
  * Returns the current open [Project] instance or null if no projects are open.
@@ -59,9 +54,7 @@ private fun currentProjectFromFocus(): Project? {
  * @return the current [FileEditor] instance or null
  */
 fun ScriptTemplateWithDisplayHelpers.currentEditor(): FileEditor? =
-    currentProject()?.let { project ->
-        FileEditorManager.getInstance(project).selectedEditor
-    }
+    FileEditorManager.getInstance(currentProject()).selectedEditor
 
 /**
  * Registers the given [instance] as an extension for the given [extensionPointName].
