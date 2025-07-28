@@ -10,6 +10,6 @@
 | [Walking Kodee](./walking_kodee.ipynb)                     | Showing an animated Kodee sprite with custom Swing components and animated GIFs.
 | [AI Assistant Extensibility](./aia_extensibility.ipynb)    | Extending the AI Assistant plugin in the runtime by providing a custom message handler.                                                        |
 | [MCP Server Toolset Implementation](./mcp.ipynb)           | Creating a Model Context Protocol (MCP) toolset that exposes a custom command to MCP clients.
-| [IntelliJ Platform SDK — Tool Window](./tool_window.ipynb) | Creating a [Tool Window](https://plugins.jetbrains.com/docs/intellij/tool-windows.html) that displays th current time along with a button to refresh it.
+| [IntelliJ Platform SDK — Tool Window](./tool_window.ipynb) | Creating a [Tool Window](https://plugins.jetbrains.com/docs/intellij/tool-windows.html) that displays the current time along with a button to refresh it.
 
 
