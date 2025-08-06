@@ -15,10 +15,15 @@ class IntelliJPlatformClassloader : ClassLoader() {
     val allParents = mutableListOf<ClassLoader>()
 
     private fun getParents(classLoader: ClassLoader): List<ClassLoader> {
-        return when {
-            classLoader is PluginClassLoader -> classLoader.getAllParentsClassLoaders().toList()
-            else -> generateSequence(classLoader.parent) { it.parent }.toList()
-        }
+        val allParents =
+            when {
+                classLoader is PluginClassLoader -> classLoader.getAllParentsClassLoaders().toList()
+                else -> generateSequence(classLoader.parent) { it.parent }.toList()
+            }
+
+        // Some plugin classloaders may reference themselves as their own parents...
+        // It's sick, but all we can do is to filter these references out.
+        return allParents.filterNot { it === classLoader }
     }
 
     fun addParents(parents: List<ClassLoader>) {
