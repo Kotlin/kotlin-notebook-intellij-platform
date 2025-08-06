@@ -22,8 +22,7 @@ import org.jetbrains.kotlinx.jupyter.intellij.utils.getPropertyValue
  *
  * @return the current [Project] instance or null
  */
-fun ScriptTemplateWithDisplayHelpers.currentProject(): Project =
-    requireNotNull(currentProjectFromNotebook(notebook))
+fun ScriptTemplateWithDisplayHelpers.currentProject(): Project = requireNotNull(currentProjectFromNotebook(notebook))
 
 /**
  * Returns the current open [Project] instance or null if no projects are open.
@@ -53,8 +52,7 @@ private fun currentProjectFromFocus(): Project? {
  *
  * @return the current [FileEditor] instance or null
  */
-fun ScriptTemplateWithDisplayHelpers.currentEditor(): FileEditor? =
-    FileEditorManager.getInstance(currentProject()).selectedEditor
+fun ScriptTemplateWithDisplayHelpers.currentEditor(): FileEditor? = FileEditorManager.getInstance(currentProject()).selectedEditor
 
 /**
  * Registers the given [instance] as an extension for the given [extensionPointName].

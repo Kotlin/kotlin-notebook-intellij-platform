@@ -4,8 +4,8 @@
 
 package org.jetbrains.kotlinx.jupyter.intellij
 
-//import org.jetbrains.kotlinx.dataframe.AnyFrame
-//import org.jetbrains.kotlinx.dataframe.api.toDataFrame
+// import org.jetbrains.kotlinx.dataframe.AnyFrame
+// import org.jetbrains.kotlinx.dataframe.api.toDataFrame
 import com.intellij.ide.plugins.PluginMainDescriptor
 import com.intellij.openapi.application.invokeAndWaitIfNeeded
 import com.intellij.openapi.extensions.PluginId
@@ -94,10 +94,10 @@ fun ScriptTemplateWithDisplayHelpers.loadPlugins(
         .toList()
 }
 
-///**
+// /**
 // * Prints the list of installed plugins in the currently run IDE.
 // */
-//fun ScriptTemplateWithDisplayHelpers.printPlugins(): AnyFrame {
+// fun ScriptTemplateWithDisplayHelpers.printPlugins(): AnyFrame {
 //    USE {
 //        EXECUTE("%use dataframe")
 //    }
@@ -113,7 +113,7 @@ fun ScriptTemplateWithDisplayHelpers.loadPlugins(
 //            "enabled" to map { !PluginManagerCore.isDisabled(it.pluginId) },
 //        )
 //    }.toDataFrame()
-//}
+// }
 
 /**
  * Runs the given [block] in the EDT.

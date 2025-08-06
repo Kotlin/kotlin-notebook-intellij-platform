@@ -29,17 +29,19 @@ val notebookDisposable: Disposable = Disposer.newCheckedDisposable("Kotlin Noteb
  */
 @Suppress("UnstableApiUsage")
 val ScriptTemplateWithDisplayHelpers.notebookPluginDescriptor: PluginMainDescriptor
-    get() = PluginMainDescriptor(
-        raw = PluginDescriptorBuilder.builder().apply {
-            id = "kotlin.notebook.plugin"
-            name = "Kotlin Notebook Plugin"
-            version = "1.0"
-        }.build(),
-        pluginPath = notebook.workingDir,
-        isBundled = false,
-    ).apply {
-        pluginClassLoader = notebook.executionHost?.lastClassLoader
-    }
+    get() =
+        PluginMainDescriptor(
+            raw =
+                PluginDescriptorBuilder.builder().apply {
+                    id = "kotlin.notebook.plugin"
+                    name = "Kotlin Notebook Plugin"
+                    version = "1.0"
+                }.build(),
+            pluginPath = notebook.workingDir,
+            isBundled = false,
+        ).apply {
+            pluginClassLoader = notebook.executionHost?.lastClassLoader
+        }
 
 /**
  * Represents the resolved file system path to the IntelliJ Platform installation directory.
@@ -81,9 +83,10 @@ val pluginManager: PluginManager by lazy {
  */
 val productInfo: ProductInfo by lazy {
     val parser = ProductInfoParser()
-    val file = listOf(
-        idePath.resolve("product-info.json"),
-        idePath.resolve("Resources/product-info.json"),
-    ).firstOrNull { it.exists() } ?: error("The product-info.json file not found")
+    val file =
+        listOf(
+            idePath.resolve("product-info.json"),
+            idePath.resolve("Resources/product-info.json"),
+        ).firstOrNull { it.exists() } ?: error("The product-info.json file not found")
     requireNotNull(parser.parse(file))
 }

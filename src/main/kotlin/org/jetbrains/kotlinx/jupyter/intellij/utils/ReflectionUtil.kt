@@ -55,15 +55,16 @@ inline fun <reified T : Any> createProxy(target: Any): T {
 
     return Proxy.newProxyInstance(
         interfaceClass.classLoader,
-        arrayOf(interfaceClass)
+        arrayOf(interfaceClass),
     ) { _, method, args ->
-        val targetMethod = targetClass.methods.firstOrNull {
-            it.name == method.name &&
+        val targetMethod =
+            targetClass.methods.firstOrNull {
+                it.name == method.name &&
                     it.parameterCount == method.parameterCount &&
                     it.parameterTypes.zip(method.parameterTypes).all { (targetType, interfaceType) ->
                         interfaceType.isAssignableFrom(targetType)
                     }
-        }
+            }
 
         targetMethod?.invoke(target, *(args ?: emptyArray()))
     } as T
