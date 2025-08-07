@@ -75,3 +75,19 @@ inline fun <reified T : Any> ScriptTemplateWithDisplayHelpers.registerExtension(
     .extensionArea
     .getExtensionPoint<T>(extensionPointName)
     .registerExtension(instance, notebookPluginDescriptor, notebookDisposable)
+
+/**
+ * Registers the given [instance] as a project-level extension for the given [extensionPointName].
+ *
+ * This is applicable for extensions such as `com.intellij.treeStructureProvider`
+ * or `com.intellij.runConfigurationsSettings`.
+ */
+inline fun <reified T : Any> ScriptTemplateWithDisplayHelpers.registerProjectExtension(
+    extensionPointName: String,
+    instance: T,
+) {
+    this.currentProject()
+        .extensionArea
+        .getExtensionPoint<T>(extensionPointName)
+        .registerExtension(instance, notebookPluginDescriptor, notebookDisposable)
+}
