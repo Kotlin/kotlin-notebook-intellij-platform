@@ -79,14 +79,21 @@ val pluginManager: PluginManager by lazy {
 }
 
 /**
- * Lazily initialized property containing information about the current IntelliJ Platform product.
+ * Contains information about the current IntelliJ Platform product.
  */
-val productInfo: ProductInfo by lazy {
+val productInfo: ProductInfo get() = productInfoOrNull ?: error("The product-info.json file not found")
+
+/**
+ * Lazily initialized property containing information about the current IntelliJ Platform product.
+ * It might return null only in the IDE, which is run in development mode.
+ * In production IDE it's safe to use [productInfo]
+ */
+val productInfoOrNull: ProductInfo? by lazy {
     val parser = ProductInfoParser()
     val file =
         listOf(
             idePath.resolve("product-info.json"),
             idePath.resolve("Resources/product-info.json"),
-        ).firstOrNull { it.exists() } ?: error("The product-info.json file not found")
+        ).firstOrNull { it.exists() } ?: return@lazy null
     requireNotNull(parser.parse(file))
 }

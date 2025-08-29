@@ -7,8 +7,10 @@ package org.jetbrains.kotlinx.jupyter.intellij
 // import org.jetbrains.kotlinx.dataframe.AnyFrame
 // import org.jetbrains.kotlinx.dataframe.api.toDataFrame
 import com.intellij.ide.plugins.PluginMainDescriptor
+import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.application.invokeAndWaitIfNeeded
 import com.intellij.openapi.extensions.PluginId
+import com.jetbrains.plugin.structure.intellij.platform.ProductInfo
 import jupyter.kotlin.ScriptTemplateWithDisplayHelpers
 import org.jetbrains.kotlinx.jupyter.api.exceptions.ReplUnwrappedExceptionImpl
 import org.jetbrains.kotlinx.jupyter.api.libraries.dependencies
@@ -152,8 +154,9 @@ private fun ScriptTemplateWithDisplayHelpers.downloadPlugin(pluginId: String): P
             .resolve(".intellijPlatform/kotlinNotebook")
             .createDirectories()
 
-    val platformType = productInfo.productCode
-    val platformVersion = productInfo.buildNumber
+    val buildInfo = ApplicationInfo.getInstance().build
+    val platformType = buildInfo.productCode
+    val platformVersion = buildInfo.asStringWithoutProductCodeAndSnapshot()
 
     val pluginRequest = PluginRequest.parse(pluginId)
 
@@ -175,4 +178,13 @@ private fun ScriptTemplateWithDisplayHelpers.downloadPlugin(pluginId: String): P
     }
 
     return pluginDirectory
+}
+
+val ProductInfo.platformJars: Set<Path> get() {
+    return launch
+        ?.firstOrNull()
+        ?.bootClassPathJarNames
+        .orEmpty()
+        .map { idePath.resolve("lib/$it") }
+        .toSet()
 }

@@ -3,6 +3,8 @@
 package org.jetbrains.kotlinx.jupyter.intellij
 
 import com.intellij.jupyter.core.jupyter.connections.action.JupyterRestartKernelListener
+import com.intellij.openapi.application.ApplicationInfo
+import com.intellij.openapi.application.ApplicationNamesInfo
 import com.intellij.openapi.util.Disposer
 import org.jetbrains.kotlinx.jupyter.api.KotlinKernelHost
 import org.jetbrains.kotlinx.jupyter.api.Notebook
@@ -11,6 +13,7 @@ import org.jetbrains.kotlinx.jupyter.api.libraries.createLibrary
 import org.jetbrains.kotlinx.jupyter.api.libraries.dependencies
 import org.jetbrains.kotlinx.jupyter.api.textResult
 import org.jetbrains.kotlinx.jupyter.intellij.utils.IntelliJPlatformClassloader
+import org.jetbrains.kotlinx.jupyter.intellij.utils.devMode.getAllIntellijPathsForDevMode
 import org.jetbrains.kotlinx.jupyter.intellij.utils.toVersion
 import org.jetbrains.kotlinx.jupyter.util.ModifiableParentsClassLoader
 import java.net.URLClassLoader
@@ -38,13 +41,15 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
 
             loadIntelliJPlatform(notebook)
 
-            if (productInfo.version.toVersion() >= MINIMAL_SUPPORTED_IDE_VERSION) {
+            val productVersion = ApplicationInfo.getInstance().run { "$majorVersion.$minorVersion" }
+            if (productVersion.toVersion() >= MINIMAL_SUPPORTED_IDE_VERSION) {
                 initializeDisposable(notebook)
                 initializeIntelliJPlatformClassloader(notebook)
             } else {
+                val productName = ApplicationNamesInfo.getInstance().fullProductName
                 error(
                     """
-                    You are running ${productInfo.name} ${productInfo.version}.
+                    You are running $productName $productVersion.
                     The `notebookDisposable` and `loadPlugins()` are not fully supported in this version of the IDE.
                     Please upgrade to $MINIMAL_SUPPORTED_IDE_VERSION or higher for the full IntelliJ Platform integration experience.
                     """.trimIndent(),
@@ -55,12 +60,7 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
 
     private fun KotlinKernelHost.loadIntelliJPlatform(notebook: Notebook) {
         val intelliJPlatformJars =
-            productInfo.launch
-                ?.firstOrNull()
-                ?.bootClassPathJarNames
-                .orEmpty()
-                .map { idePath.resolve("lib/$it") }
-                .toSet()
+            productInfoOrNull?.platformJars ?: getAllIntellijPathsForDevMode()
 
         addLibrary(
             createLibrary(notebook) {
