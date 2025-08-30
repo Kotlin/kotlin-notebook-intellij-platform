@@ -3,7 +3,7 @@
 # https://intellij-support.jetbrains.com/hc/en-us/articles/206544879-Selecting-the-JDK-version-the-IDE-will-run-under
 jvmTarget = "17"
 kotlin = "2.2.0"
-kotlin-jupyter = "0.13.0-481-1"
+kotlin-jupyter = "0.15.0-602"
 dataframe-core = "1.0.0-dev-7473"
 publishPlugin = "1.9.23-dev-45"
 ktlintGradle = "12.3.0"

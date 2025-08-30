@@ -15,8 +15,10 @@ import org.jetbrains.kotlinx.jupyter.api.textResult
 import org.jetbrains.kotlinx.jupyter.intellij.utils.IntelliJPlatformClassloader
 import org.jetbrains.kotlinx.jupyter.intellij.utils.devMode.getAllIntellijPathsForDevMode
 import org.jetbrains.kotlinx.jupyter.intellij.utils.toVersion
+import org.jetbrains.kotlinx.jupyter.protocol.api.logger
 import org.jetbrains.kotlinx.jupyter.util.ModifiableParentsClassLoader
 import java.net.URLClassLoader
+import java.nio.file.Path
 import kotlin.io.path.invariantSeparatorsPathString
 
 /**
@@ -59,22 +61,35 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
     }
 
     private fun KotlinKernelHost.loadIntelliJPlatform(notebook: Notebook) {
-        val intelliJPlatformJars =
-            productInfoOrNull?.platformJars ?: getAllIntellijPathsForDevMode()
+        val intelliJPlatformJars = getPlatformJars(notebook)
 
         addLibrary(
             createLibrary(notebook) {
                 importPackage<IntelliJPlatformJupyterIntegration>()
 
                 dependencies {
-                    intelliJPlatformJars.forEach {
-                        implementation(it.invariantSeparatorsPathString)
+                    for (jarPath in intelliJPlatformJars) {
+                        implementation(jarPath.invariantSeparatorsPathString)
                     }
                 }
             },
         )
 
         displayText("IntelliJ Platform integration is loaded")
+    }
+
+    private fun getPlatformJars(notebook: Notebook): Set<Path> {
+        val logger = notebook.loggerFactory.logger<IntelliJPlatformJupyterIntegration>()
+        return when (val productInfo = productInfoOrNull) {
+            null -> {
+                logger.info("The product-info.json file isn't found, falling back to dev mode JARs detection")
+                getAllIntellijPathsForDevMode()
+            }
+            else -> {
+                logger.info("The product-info.json file is found, using JAR paths from it")
+                productInfo.platformJars
+            }
+        }
     }
 
     private fun KotlinKernelHost.initializeDisposable(notebook: Notebook) {
