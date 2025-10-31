@@ -16,6 +16,7 @@ import org.jetbrains.kotlinx.jupyter.api.libraries.dependencies
 import org.jetbrains.kotlinx.jupyter.api.textResult
 import org.jetbrains.kotlinx.jupyter.intellij.utils.IntelliJPlatformClassloader
 import org.jetbrains.kotlinx.jupyter.intellij.utils.devMode.getAllIntellijPathsForDevMode
+import org.jetbrains.kotlinx.jupyter.intellij.utils.excludeUnwantedClasspathEntries
 import org.jetbrains.kotlinx.jupyter.intellij.utils.toVersion
 import org.jetbrains.kotlinx.jupyter.protocol.api.logger
 import org.jetbrains.kotlinx.jupyter.util.ModifiableParentsClassLoader
@@ -91,7 +92,7 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
                 logger.info("The product-info.json file is found, using JAR paths from it")
                 productInfo.platformJars
             }
-        }
+        }.excludeUnwantedClasspathEntries()
     }
 
     private fun KotlinKernelHost.initializeDisposable(notebook: Notebook) {
