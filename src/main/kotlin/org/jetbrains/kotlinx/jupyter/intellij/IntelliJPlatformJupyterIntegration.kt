@@ -2,7 +2,9 @@
 
 package org.jetbrains.kotlinx.jupyter.intellij
 
+import com.intellij.jupyter.core.executor.JupyterExecutionListener
 import com.intellij.jupyter.core.jupyter.connections.action.JupyterRestartKernelListener
+import com.intellij.jupyter.core.jupyter.connections.execution.core.JupyterNotebookSession
 import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.application.ApplicationNamesInfo
 import com.intellij.openapi.util.Disposer
@@ -93,16 +95,33 @@ class IntelliJPlatformJupyterIntegration : JupyterIntegration() {
     }
 
     private fun KotlinKernelHost.initializeDisposable(notebook: Notebook) {
-        requireNotNull(currentProjectFromNotebook(notebook))
-            .messageBus
-            .connect(notebookDisposable)
-            .subscribe(
-                JupyterRestartKernelListener.TOPIC,
-                JupyterRestartKernelListener {
-                    Disposer.dispose(notebookDisposable)
-                    displayText("IntelliJ Platform integration is disposed")
+        fun disposeIntegration() {
+            Disposer.dispose(notebookDisposable)
+            displayText("IntelliJ Platform integration is disposed")
+        }
+
+        try {
+            // JupyterRestartKernelListener was removed in 261 version of the platform
+            JupyterExecutionListener.register(
+                notebookDisposable,
+                object : JupyterExecutionListener {
+                    override suspend fun sessionDeleted(session: JupyterNotebookSession) {
+                        disposeIntegration()
+                    }
                 },
             )
+        } catch (_: LinkageError) {
+            val topic = JupyterRestartKernelListener.TOPIC
+            requireNotNull(currentProjectFromNotebook(notebook))
+                .messageBus
+                .connect(notebookDisposable)
+                .subscribe(
+                    topic,
+                    JupyterRestartKernelListener {
+                        disposeIntegration()
+                    },
+                )
+        }
     }
 
     private fun initializeIntelliJPlatformClassloader(notebook: Notebook) {

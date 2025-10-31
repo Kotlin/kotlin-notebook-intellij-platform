@@ -57,7 +57,9 @@ dependencies {
     testImplementation(kotlin("test"))
 
     intellijPlatform {
-        intellijIdeaCommunity(libs.versions.intellijPlatform, useInstaller = false)
+        intellijIdea(libs.versions.intellijPlatform) {
+            useInstaller = false
+        }
         bundledPlugin("intellij.jupyter")
     }
 }
