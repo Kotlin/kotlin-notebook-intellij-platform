@@ -104,3 +104,8 @@ kotlinPublications {
         description.set("Kotlin Jupyter kernel integration for the IntelliJ Platform")
     }
 }
+
+tasks.wrapper {
+    gradleVersion = providers.gradleProperty("gradleVersion").get()
+    distributionUrl = "https://cache-redirector.jetbrains.com/services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+}
