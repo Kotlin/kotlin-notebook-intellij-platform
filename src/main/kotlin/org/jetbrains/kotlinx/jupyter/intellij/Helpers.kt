@@ -16,6 +16,7 @@ import org.jetbrains.kotlinx.jupyter.api.exceptions.ReplUnwrappedExceptionImpl
 import org.jetbrains.kotlinx.jupyter.api.libraries.dependencies
 import org.jetbrains.kotlinx.jupyter.intellij.utils.PluginRequest
 import org.jetbrains.kotlinx.jupyter.intellij.utils.collectJars
+import org.jetbrains.kotlinx.jupyter.intellij.utils.excludeUnwantedClasspathEntries
 import org.jetbrains.kotlinx.jupyter.intellij.utils.extract
 import org.jetbrains.kotlinx.jupyter.intellij.utils.resolveCompatibleVersion
 import java.nio.file.Path
@@ -41,6 +42,7 @@ fun ScriptTemplateWithDisplayHelpers.loadBundledPlugins(vararg pluginIds: String
                 .mapNotNull { ide.findPluginById(it) ?: ide.findPluginByModule(it) }
                 .flatMap { it.classpath.paths }
                 .toSet()
+                .excludeUnwantedClasspathEntries()
 
         USE {
             dependencies {
@@ -77,7 +79,7 @@ fun ScriptTemplateWithDisplayHelpers.loadPlugins(
             if (loadClasses) {
                 USE {
                     dependencies {
-                        for (path in plugin.pluginPath.collectJars()) {
+                        for (path in plugin.pluginPath.collectJars().excludeUnwantedClasspathEntries()) {
                             implementation(path.invariantSeparatorsPathString)
                         }
                     }
